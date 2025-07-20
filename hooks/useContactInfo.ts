@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { localDB, type ContactInfo } from "@/lib/supabase"
+import { productionDB as localDB, type ContactInfo } from "@/lib/supabase"
 
 export function useContactInfo() {
   return useQuery({

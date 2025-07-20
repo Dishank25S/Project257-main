@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { localDB, type Category } from "@/lib/supabase"
+import { productionDB as localDB, type Category } from "@/lib/supabase"
 
 export function useCategories() {
   return useQuery({

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { localDB, type Video } from "@/lib/supabase"
+import { productionDB as localDB, type Video } from "@/lib/supabase"
 
 export function useVideos(categoryId?: string) {
   return useQuery({

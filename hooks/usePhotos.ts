@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { localDB, type Photo } from "@/lib/supabase"
+import { productionDB as localDB, type Photo } from "@/lib/supabase"
 
 export function usePhotos(categoryId?: string) {
   return useQuery({
