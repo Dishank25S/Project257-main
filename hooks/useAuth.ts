@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { localDB } from "@/lib/supabase"
 
 export function useAuth() {
   const [user, setUser] = useState<{ email: string } | null>(null)
@@ -19,7 +20,7 @@ export function useAuth() {
 
   const login = {
     mutateAsync: async ({ password }: { password: string }) => {
-      if (password === "admin123") {
+      if (localDB.auth.checkPassword(password)) {
         localStorage.setItem("admin_logged_in", "true")
         setUser({ email: "admin" })
         router.push("/admin/dashboard")
@@ -40,11 +41,21 @@ export function useAuth() {
     },
   }
 
+  const setPassword = (password: string) => {
+    localDB.auth.setPassword(password)
+  }
+
+  const hasPassword = () => {
+    return localDB.auth.hasPassword()
+  }
+
   return {
     user,
     isLoading,
     isAuthenticated: !!user,
     login,
     logout,
+    setPassword,
+    hasPassword,
   }
 }

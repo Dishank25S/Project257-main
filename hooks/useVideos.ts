@@ -1,74 +1,61 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { supabase } from "@/lib/supabase"
-
-export type Video = {
-  id: string
-  category_id: string
-  title: string
-  description: string | null
-  youtube_url: string
-  youtube_id: string
-  custom_thumbnail_url: string | null
-  duration: string | null
-  display_order: number
-  is_featured: boolean
-  is_home_featured: boolean
-  home_display_section: string | null
-  view_count: number
-  created_at: string
-  updated_at: string
-  category_name?: string
-}
+import { localDB, type Video } from "@/lib/supabase"
 
 export function useVideos(categoryId?: string) {
   return useQuery({
     queryKey: ["videos", categoryId],
     queryFn: async () => {
-      let query = supabase.from("videos").select(`
-          *,
-          categories!inner(name)
-        `)
-
-      if (categoryId) {
-        query = query.eq("category_id", categoryId)
-      }
-
-      const { data, error } = await query.order("display_order").order("created_at", { ascending: false })
-
-      if (error) throw error
-
-      return data.map((video) => ({
-        ...video,
-        category_name: video.categories?.name,
-      })) as Video[]
+      const videos = localDB.videos.getAll(categoryId)
+      const categories = localDB.categories.getAll()
+      
+      return videos
+        .sort((a, b) => a.display_order - b.display_order)
+        .map((video) => ({
+          ...video,
+          category_name: categories.find(c => c.id === video.category_id)?.name || 'Uncategorized',
+        })) as (Video & { category_name: string })[]
     },
   })
 }
 
-export function useHomeVideos(section?: string) {
+export function useFeaturedVideos() {
   return useQuery({
-    queryKey: ["videos", "home", section],
+    queryKey: ["videos", "featured"],
     queryFn: async () => {
-      let query = supabase
-        .from("videos")
-        .select(`
-          *,
-          categories!inner(name)
-        `)
-        .eq("is_home_featured", true)
+      const videos = localDB.videos.getAll()
+      const categories = localDB.categories.getAll()
+      
+      const featuredVideos = videos
+        .filter(video => video.is_featured)
+        .slice(0, 6)
+        
+      return featuredVideos.map((video) => ({
+        ...video,
+        category_name: categories.find(c => c.id === video.category_id)?.name || 'Uncategorized',
+      })) as (Video & { category_name: string })[]
+    },
+  })
+}
 
+export function useHomeFeaturedVideos(section?: string) {
+  return useQuery({
+    queryKey: ["videos", "home-featured", section],
+    queryFn: async () => {
+      const videos = localDB.videos.getAll()
+      const categories = localDB.categories.getAll()
+      
+      let filteredVideos = videos.filter(video => video.is_home_featured)
+      
       if (section) {
-        query = query.eq("home_display_section", section)
+        filteredVideos = filteredVideos.filter(video => video.home_display_section === section)
       }
 
-      const { data, error } = await query.order("display_order").order("created_at", { ascending: false })
-
-      if (error) throw error
-
-      return data.map((video) => ({
-        ...video,
-        category_name: video.categories?.name,
-      })) as Video[]
+      return filteredVideos
+        .sort((a, b) => a.display_order - b.display_order)
+        .map((video) => ({
+          ...video,
+          category_name: categories.find(c => c.id === video.category_id)?.name || 'Uncategorized',
+        })) as (Video & { category_name: string })[]
     },
   })
 }
@@ -78,18 +65,8 @@ export function useVideoMutations() {
 
   const createVideo = useMutation({
     mutationFn: async (video: Omit<Video, "id" | "created_at" | "updated_at">) => {
-      // Extract YouTube ID from URL
-      const youtubeId = extractYouTubeId(video.youtube_url)
-      if (!youtubeId) throw new Error("Invalid YouTube URL")
-
-      const { data, error } = await supabase
-        .from("videos")
-        .insert({ ...video, youtube_id: youtubeId })
-        .select()
-        .single()
-
-      if (error) throw error
-      return data
+      const newVideo = localDB.videos.create(video)
+      return newVideo
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["videos"] })
@@ -98,15 +75,9 @@ export function useVideoMutations() {
 
   const updateVideo = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Video> & { id: string }) => {
-      const { data, error } = await supabase
-        .from("videos")
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq("id", id)
-        .select()
-        .single()
-
-      if (error) throw error
-      return data
+      const updated = localDB.videos.update(id, updates)
+      if (!updated) throw new Error('Video not found')
+      return updated
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["videos"] })
@@ -115,8 +86,8 @@ export function useVideoMutations() {
 
   const deleteVideo = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("videos").delete().eq("id", id)
-      if (error) throw error
+      const success = localDB.videos.delete(id)
+      if (!success) throw new Error('Video not found')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["videos"] })
@@ -124,10 +95,4 @@ export function useVideoMutations() {
   })
 
   return { createVideo, updateVideo, deleteVideo }
-}
-
-function extractYouTubeId(url: string): string | null {
-  const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/
-  const match = url.match(regex)
-  return match ? match[1] : null
 }

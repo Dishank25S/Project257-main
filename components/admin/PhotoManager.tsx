@@ -126,7 +126,7 @@ export function PhotoManager() {
               <Card className="overflow-hidden group hover:shadow-lg transition-shadow">
                 <div className="relative aspect-square">
                   <Image
-                    src={photo.image_url || "/placeholder.svg"}
+                    src={photo.url || "/placeholder.svg"}
                     alt={photo.alt_text || photo.title || "Photo"}
                     fill
                     className="object-cover"
@@ -248,7 +248,7 @@ export function PhotoManager() {
                 <div className="space-y-4">
                   <div className="aspect-square relative rounded-lg overflow-hidden bg-gray-100">
                     <Image
-                      src={editingPhoto.image_url || "/placeholder.svg"}
+                      src={editingPhoto.url || "/placeholder.svg"}
                       alt={editingPhoto.alt_text || "Photo"}
                       fill
                       className="object-cover"

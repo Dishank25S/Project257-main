@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import type { Photo } from "@/lib/supabase"
 
 interface PhotoLightboxProps {
-  photos: Photo[]
+  photos: (Photo & { category_name?: string })[]
   currentIndex: number
   isOpen: boolean
   onClose: () => void
@@ -116,7 +116,7 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
           >
             <div className="relative w-full h-full">
               <Image
-                src={currentPhoto.image_url || "/placeholder.svg"}
+                src={currentPhoto.url || "/placeholder.svg"}
                 alt={currentPhoto.alt_text || currentPhoto.title || "Photography"}
                 fill
                 className="object-contain"
@@ -168,7 +168,7 @@ export function PhotoLightbox({ photos, currentIndex, isOpen, onClose, onNavigat
                   onClick={() => {
                     // Download functionality
                     const link = document.createElement("a")
-                    link.href = currentPhoto.image_url
+                    link.href = currentPhoto.url
                     link.download = currentPhoto.title || "photo"
                     link.click()
                   }}

@@ -13,12 +13,12 @@ export function CategoryCards() {
   const { data: allPhotos } = usePhotos()
 
   const getCategoryPhoto = (categoryId: string) => {
-    const categoryPhotos = allPhotos?.filter((photo) => photo.category_id === categoryId && photo.is_active)
+    const categoryPhotos = allPhotos?.filter((photo) => photo.category_id === categoryId)
     return categoryPhotos?.[0] || null
   }
 
   const getCategoryPhotoCount = (categoryId: string) => {
-    return allPhotos?.filter((photo) => photo.category_id === categoryId && photo.is_active).length || 0
+    return allPhotos?.filter((photo) => photo.category_id === categoryId).length || 0
   }
 
   const handleCategoryClick = (categorySlug: string) => {
@@ -61,7 +61,7 @@ export function CategoryCards() {
                 <div className="relative aspect-[4/5] overflow-hidden rounded-xl sm:rounded-2xl bg-gray-200 shadow-lg group-hover:shadow-xl transition-all duration-500">
                   {categoryPhoto ? (
                     <Image
-                      src={categoryPhoto.image_url || "/placeholder.svg"}
+                      src={categoryPhoto.url || "/placeholder.svg"}
                       alt={categoryPhoto.alt_text || category.name}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-110"

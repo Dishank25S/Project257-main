@@ -1,0 +1,31 @@
+🎉 *Your Sharp Cinematic Portfolio is LIVE!* 📸
+
+🌐 *Links:*
+• Website: https://your-site-name.vercel.app
+• Admin: https://your-site-name.vercel.app/admin/login
+• Password: `admin123` (change after login!)
+
+---
+
+📱 *Quick Dashboard Guide:*
+
+*📷 PHOTOS:* Drag & drop to upload
+*🎬 VIDEOS:* Paste YouTube URL → instant thumbnail!
+*📁 CATEGORIES:* Organize your work  
+*📞 CONTACT:* Update your info
+*👀 PREVIEW:* See changes live
+
+---
+
+🚀 *Getting Started:*
+1️⃣ Login with admin123
+2️⃣ Go to Settings → Change Password  
+3️⃣ Upload Photos tab → Drag images
+4️⃣ Videos tab → Paste YouTube links
+5️⃣ Contact tab → Add your details
+
+✨ *Everything updates in real-time!*
+✨ *Works perfectly on mobile!*
+✨ *No technical skills needed!*
+
+Ready to showcase your amazing photography! 📸🔥

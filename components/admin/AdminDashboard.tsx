@@ -2,19 +2,24 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Camera, FolderOpen, Upload, BarChart3, LogOut, Plus, Eye, Star, Play, Youtube } from "lucide-react"
+import { Camera, FolderOpen, Upload, BarChart3, LogOut, Plus, Eye, Star, Play, Youtube, Home, Settings, Users, Palette } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
 import { PhotoUpload } from "./PhotoUpload"
 import { PhotoManager } from "./PhotoManager"
 import { CategoryManager } from "./CategoryManager"
 import { VideoUpload } from "./VideoUpload"
 import { VideoManager } from "./VideoManager"
+import { SampleDataInitializer } from "./SampleDataInitializer"
+import { ContactManager } from "./ContactManager"
+import { LivePreview } from "./LivePreview"
 import { useAuth } from "@/hooks/useAuth"
 import { useCategories } from "@/hooks/useCategories"
 import { usePhotos } from "@/hooks/usePhotos"
 import { useVideos } from "@/hooks/useVideos"
+import { useContactInfo } from "@/hooks/useContactInfo"
 
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview")
@@ -22,12 +27,14 @@ export function AdminDashboard() {
   const { data: categories } = useCategories()
   const { data: allPhotos } = usePhotos()
   const { data: allVideos } = useVideos()
+  const { data: contactInfo } = useContactInfo()
 
   const stats = {
     totalPhotos: allPhotos?.length || 0,
     totalVideos: allVideos?.length || 0,
     totalCategories: categories?.length || 0,
     featuredPhotos: allPhotos?.filter((photo) => photo.is_featured).length || 0,
+    homeFeaturedPhotos: allPhotos?.filter((photo) => photo.is_home_featured).length || 0,
     recentUploads:
       allPhotos?.filter((photo) => {
         const uploadDate = new Date(photo.created_at)
@@ -60,7 +67,7 @@ export function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -79,11 +86,19 @@ export function AdminDashboard() {
             </TabsTrigger>
             <TabsTrigger value="upload-photos" className="flex items-center gap-2">
               <Upload className="w-4 h-4" />
-              <span className="hidden sm:inline">Upload Photos</span>
+              <span className="hidden sm:inline">Upload</span>
             </TabsTrigger>
             <TabsTrigger value="upload-videos" className="flex items-center gap-2">
               <Youtube className="w-4 h-4" />
               <span className="hidden sm:inline">Add Videos</span>
+            </TabsTrigger>
+            <TabsTrigger value="contact" className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline">Contact</span>
+            </TabsTrigger>
+            <TabsTrigger value="preview" className="flex items-center gap-2">
+              <Eye className="w-4 h-4" />
+              <span className="hidden sm:inline">Preview</span>
             </TabsTrigger>
           </TabsList>
 
@@ -194,33 +209,60 @@ export function AdminDashboard() {
                     <Eye className="w-4 h-4 mr-2" />
                     View Public Website
                   </Button>
+                  <Button
+                    className="w-full justify-start bg-transparent"
+                    variant="outline"
+                    onClick={() => setActiveTab("preview")}
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    Live Preview
+                  </Button>
+                  <Button
+                    className="w-full justify-start bg-transparent"
+                    variant="outline"
+                    onClick={() => setActiveTab("contact")}
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Contact Settings
+                  </Button>
                 </CardContent>
               </Card>
 
+              {/* Sample Data Initializer */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Category Overview</CardTitle>
-                  <CardDescription>Photos distribution across categories</CardDescription>
+                  <CardTitle>Quick Setup</CardTitle>
+                  <CardDescription>Get started with sample content</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {categories?.slice(0, 6).map((category) => (
-                      <div key={category.id} className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{category.name}</span>
-                        <span className="text-sm text-gray-500">{category.photo_count || 0} photos</span>
-                      </div>
-                    ))}
-                    {categories && categories.length > 6 && (
-                      <div className="text-center pt-2">
-                        <Button variant="ghost" size="sm" onClick={() => setActiveTab("categories")}>
-                          View All Categories
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+                  <SampleDataInitializer />
                 </CardContent>
               </Card>
             </div>
+
+            {/* Home Featured Content Stats */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Homepage Content</CardTitle>
+                <CardDescription>Manage content displayed on your homepage</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">{stats.homeFeaturedPhotos}</div>
+                    <div className="text-sm text-blue-700">Homepage Featured Photos</div>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600">{stats.featuredPhotos}</div>
+                    <div className="text-sm text-purple-700">Portfolio Featured</div>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">{stats.totalCategories}</div>
+                    <div className="text-sm text-green-700">Active Categories</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="photos">
@@ -241,6 +283,14 @@ export function AdminDashboard() {
 
           <TabsContent value="upload-videos">
             <VideoUpload />
+          </TabsContent>
+
+          <TabsContent value="contact">
+            <ContactManager />
+          </TabsContent>
+
+          <TabsContent value="preview">
+            <LivePreview />
           </TabsContent>
         </Tabs>
       </div>

@@ -22,7 +22,7 @@ export function PhotoCard({ photo, onClick, index }: PhotoCardProps) {
     >
       <div className="relative aspect-square overflow-hidden rounded-xl bg-gray-100 shadow-md group-hover:shadow-xl transition-all duration-300">
         <Image
-          src={photo.image_url || "/placeholder.svg"}
+          src={photo.url || "/placeholder.svg"}
           alt={photo.alt_text || photo.title || "Photography"}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-110"

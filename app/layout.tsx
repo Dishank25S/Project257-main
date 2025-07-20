@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider"
 import { AdminAccess } from "@/components/AdminAccess"
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -33,6 +34,7 @@ export default function RootLayout({
         <ReactQueryProvider>
           {children}
           <AdminAccess />
+          <Toaster />
         </ReactQueryProvider>
       </body>
     </html>

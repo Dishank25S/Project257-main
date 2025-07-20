@@ -7,13 +7,13 @@ import Link from "next/link"
 import { ChevronLeft, ChevronRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { usePhotos } from "@/hooks/usePhotos"
-import { useHomeVideos } from "@/hooks/useVideos"
+import { useHomeFeaturedVideos } from "@/hooks/useVideos"
 import { useContactInfo } from "@/hooks/useContactInfo"
 
 export function HeroSection() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const { data: heroPhotos } = usePhotos()
-  const { data: heroVideos } = useHomeVideos("hero")
+  const { data: heroVideos } = useHomeFeaturedVideos("hero")
   const { data: contactInfo } = useContactInfo()
 
   // Combine photos and videos for hero carousel
@@ -93,7 +93,7 @@ export function HeroSection() {
             </div>
           ) : (
             <Image
-              src={currentItem.image_url || "/placeholder.svg"}
+              src={currentItem.url || "/placeholder.svg"}
               alt={currentItem.alt_text || currentItem.title || "Photography"}
               fill
               className="object-cover"

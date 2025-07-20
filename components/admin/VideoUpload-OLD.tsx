@@ -49,14 +49,6 @@ export function VideoUpload() {
     formState: { errors, isSubmitting },
   } = useForm<VideoForm>({
     resolver: zodResolver(videoSchema),
-    defaultValues: {
-      is_featured: false,
-      is_home_featured: false,
-      title: "",
-      category_id: "",
-      youtube_url: "",
-      description: "",
-    },
   })
 
   const watchedUrl = watch("youtube_url")
@@ -100,8 +92,6 @@ export function VideoUpload() {
 
       await createVideo.mutateAsync({
         ...data,
-        description: data.description || null,
-        home_display_section: data.home_display_section || null,
         youtube_id: youtubeId,
         display_order: 0,
         view_count: 0,
@@ -117,79 +107,89 @@ export function VideoUpload() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Youtube className="w-5 h-5 text-red-500" />
-          Add YouTube Video
-        </CardTitle>
-        <CardDescription>Add YouTube videos to your portfolio by pasting the video URL</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* URL Input with real-time preview */}
-          <div className="space-y-2">
-            <Label htmlFor="youtube_url">YouTube URL *</Label>
-            <Input
-              id="youtube_url"
-              {...register("youtube_url")}
-              placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
-              className={errors.youtube_url ? "border-red-500" : ""}
-            />
-            {errors.youtube_url && <p className="text-sm text-red-500">{errors.youtube_url.message}</p>}
-            {!previewData && watchedUrl && watchedUrl.length > 10 && (
-              <p className="text-sm text-amber-600">⚠️ Invalid YouTube URL format</p>
-            )}
-          </div>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Youtube className="w-5 h-5 text-red-500" />
+            Add YouTube Video
+          </CardTitle>
+          <CardDescription>Add YouTube videos to your portfolio by pasting the video URL</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* URL Input with real-time preview */}
+            <div className="space-y-2">
+              <Label htmlFor="youtube_url">YouTube URL *</Label>
+              <Input
+                id="youtube_url"
+                {...register("youtube_url")}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className={errors.youtube_url ? "border-red-500" : ""}
+              />
+              {errors.youtube_url && <p className="text-sm text-red-500">{errors.youtube_url.message}</p>}
+            </div>
 
-          {/* Real-time Thumbnail Preview */}
-          {previewData && (
-            <div className="space-y-3">
-              <Label>Video Preview</Label>
-              <div className="relative aspect-video max-w-md mx-auto bg-black rounded-lg overflow-hidden group border">
-                <Image
-                  src={previewData.thumbnailUrl}
-                  alt="YouTube video thumbnail"
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/30 transition-colors">
-                  <div className="bg-red-600 rounded-full p-3 shadow-lg">
-                    <Play className="w-6 h-6 text-white fill-current" />
+            {/* Real-time Thumbnail Preview */}
+            {previewData && (
+              <div className="space-y-3">
+                <Label>Video Preview</Label>
+                <div className="relative aspect-video max-w-md mx-auto bg-black rounded-lg overflow-hidden group">
+                  <Image
+                    src={previewData.thumbnailUrl}
+                    alt="YouTube video thumbnail"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/30 transition-colors">
+                    <div className="bg-red-600 rounded-full p-3 shadow-lg">
+                      <Play className="w-6 h-6 text-white fill-current" />
+                    </div>
+                  </div>
+                  <div className="absolute bottom-2 right-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => window.open(`https://www.youtube.com/watch?v=${previewData.videoId}`, '_blank')}
+                    >
+                      <ExternalLink className="w-3 h-3 mr-1" />
+                      Watch
+                    </Button>
                   </div>
                 </div>
-                <div className="absolute bottom-2 right-2">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => window.open(`https://www.youtube.com/watch?v=${previewData.videoId}`, '_blank')}
-                  >
-                    <ExternalLink className="w-3 h-3 mr-1" />
-                    Watch
-                  </Button>
-                </div>
+                <p className="text-sm text-green-600 text-center">✓ Valid YouTube URL detected</p>
               </div>
-              <p className="text-sm text-green-600 text-center font-medium">✓ Valid YouTube URL detected - Video ID: {previewData.videoId}</p>
+            )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="youtube_url">YouTube URL *</Label>
+              <Input
+                id="youtube_url"
+                {...register("youtube_url")}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className={errors.youtube_url ? "border-red-500" : ""}
+              />
+              {errors.youtube_url && <p className="text-sm text-red-500">{errors.youtube_url.message}</p>}
             </div>
-          )}
 
-          <div className="space-y-2">
-            <Label htmlFor="category">Category *</Label>
-            <Select onValueChange={(value) => setValue("category_id", value)}>
-              <SelectTrigger className={errors.category_id ? "border-red-500" : ""}>
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories?.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.category_id && <p className="text-sm text-red-500">{errors.category_id.message}</p>}
+            <div className="space-y-2">
+              <Label htmlFor="category">Category *</Label>
+              <Select onValueChange={(value) => setValue("category_id", value)}>
+                <SelectTrigger className={errors.category_id ? "border-red-500" : ""}>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories?.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.category_id && <p className="text-sm text-red-500">{errors.category_id.message}</p>}
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -207,6 +207,23 @@ export function VideoUpload() {
             <Label htmlFor="description">Description</Label>
             <Textarea id="description" {...register("description")} placeholder="Video description..." rows={3} />
           </div>
+
+          {/* Preview */}
+          {previewUrl && (
+            <div className="space-y-2">
+              <Label>Preview</Label>
+              <div className="relative aspect-video max-w-md rounded-lg overflow-hidden bg-gray-100">
+                <img
+                  src={previewUrl || "/placeholder.svg"}
+                  alt="Video thumbnail"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                  <Play className="w-12 h-12 text-white" />
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-center space-x-2">
@@ -246,10 +263,10 @@ export function VideoUpload() {
 
           <Button
             type="submit"
-            disabled={isSubmitting || createVideo.isPending || !previewData}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+            disabled={isSubmitting || createVideo.isPending}
+            className="w-full bg-purple-600 hover:bg-purple-700"
           >
-            {isSubmitting || createVideo.isPending ? "Adding Video..." : "Add Video to Portfolio"}
+            {isSubmitting || createVideo.isPending ? "Adding Video..." : "Add Video"}
           </Button>
         </form>
       </CardContent>

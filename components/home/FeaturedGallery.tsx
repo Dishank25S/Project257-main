@@ -8,7 +8,7 @@ import { Play, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { PhotoLightbox } from "@/components/gallery/PhotoLightbox"
 import { useFeaturedPhotos, useHomeFeaturedPhotos } from "@/hooks/usePhotos"
-import { useHomeVideos } from "@/hooks/useVideos"
+import { useHomeFeaturedVideos } from "@/hooks/useVideos"
 
 interface FeaturedGalleryProps {
   section: "top" | "bottom"
@@ -22,7 +22,7 @@ export function FeaturedGallery({ section, title, description }: FeaturedGallery
   // Get photos based on section
   const { data: featuredPhotos } = useFeaturedPhotos()
   const { data: homeFeaturedPhotos } = useHomeFeaturedPhotos(section === "bottom" ? "bottom" : undefined)
-  const { data: sectionVideos } = useHomeVideos(section)
+  const { data: sectionVideos } = useHomeFeaturedVideos(section)
 
   // Select the appropriate photos based on section
   const sectionPhotos = section === "top" ? featuredPhotos || [] : homeFeaturedPhotos || []
@@ -75,9 +75,13 @@ export function FeaturedGallery({ section, title, description }: FeaturedGallery
                   src={
                     item.type === "video"
                       ? item.custom_thumbnail_url || `https://img.youtube.com/vi/${item.youtube_id}/maxresdefault.jpg`
-                      : item.image_url || "/placeholder.svg"
+                      : item.url || "/placeholder.svg"
                   }
-                  alt={item.alt_text || item.title || "Content"}
+                  alt={
+                    item.type === "photo" && 'alt_text' in item
+                      ? item.alt_text || item.title || "Content"
+                      : item.title || "Content"
+                  }
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

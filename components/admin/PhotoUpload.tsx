@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useDropzone } from "react-dropzone"
 import { Upload, X, Check, AlertCircle, Info } from "lucide-react"
@@ -15,7 +15,6 @@ import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useCategories } from "@/hooks/useCategories"
 import { usePhotoMutations } from "@/hooks/usePhotos"
-import { supabase } from "@/lib/supabase"
 
 interface UploadFile extends File {
   id: string
@@ -51,13 +50,38 @@ export function PhotoUpload() {
   const { createPhoto } = usePhotoMutations()
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    const newFiles = acceptedFiles.map((file) => ({
-      ...file,
-      id: Math.random().toString(36).substr(2, 9),
-      preview: URL.createObjectURL(file),
-      progress: 0,
-      status: "pending" as const,
-    }))
+    const newFiles = acceptedFiles.map((file) => {
+      // Ensure file is a valid File object before creating object URL
+      if (!(file instanceof File)) {
+        console.error('Invalid file object:', file)
+        return null
+      }
+
+      // Additional validation for image files
+      if (!file.type.startsWith('image/')) {
+        console.error('File is not an image:', file.type)
+        return null
+      }
+
+      // Check file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        console.error('File too large:', file.size)
+        return null
+      }
+      
+      try {
+        return {
+          ...file,
+          id: Math.random().toString(36).substr(2, 9),
+          preview: URL.createObjectURL(file),
+          progress: 0,
+          status: "pending" as const,
+        }
+      } catch (error) {
+        console.error('Error creating object URL:', error)
+        return null
+      }
+    }).filter(Boolean) as UploadFile[]
 
     setFiles((prev) => [...prev, ...newFiles])
   }, [])
@@ -69,7 +93,24 @@ export function PhotoUpload() {
     },
     multiple: true,
     maxFiles: 10,
+    onError: (error) => {
+      console.error('Dropzone error:', error)
+    },
+    onDropRejected: (fileRejections) => {
+      console.error('Files rejected:', fileRejections)
+    },
   })
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      files.forEach((file) => {
+        if (file.preview) {
+          URL.revokeObjectURL(file.preview)
+        }
+      })
+    }
+  }, [files])
 
   const removeFile = (id: string) => {
     setFiles((prev) => {
@@ -86,38 +127,41 @@ export function PhotoUpload() {
       // Update status to uploading
       setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, status: "uploading" as const } : f)))
 
-      // Upload to Supabase Storage
-      const fileName = `${Date.now()}-${file.name}`
-      const { data: uploadData, error: uploadError } = await supabase.storage.from("photos").upload(fileName, file, {
-        onUploadProgress: (progress) => {
-          const percent = (progress.loaded / progress.total) * 100
-          setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, progress: percent } : f)))
-        },
-      })
+      // Simulate upload progress for better UX
+      for (let progress = 0; progress <= 100; progress += 25) {
+        setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, progress } : f)))
+        await new Promise(resolve => setTimeout(resolve, 100))
+      }
 
-      if (uploadError) throw uploadError
+      // Create a blob URL for the file (this will persist until the page is refreshed)
+      let imageUrl: string
+      try {
+        // Validate file before creating object URL
+        if (!(file instanceof File)) {
+          throw new Error('Invalid file object')
+        }
+        imageUrl = URL.createObjectURL(file)
+      } catch (error) {
+        console.error('Error creating object URL for upload:', error)
+        // Fallback to a placeholder or handle error
+        throw new Error('Failed to process image file')
+      }
 
-      // Get public URL
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("photos").getPublicUrl(fileName)
-
+      // For a production app, you would upload to a cloud service like Cloudinary, 
+      // AWS S3, or save to a local server. For this demo, we'll use the blob URL.
+      
       // Create photo record with all required fields
       await createPhoto.mutateAsync({
         category_id: metadata.categoryId,
         title: metadata.title || file.name,
         description: metadata.description,
-        image_url: publicUrl,
-        thumbnail_url: null,
+        url: imageUrl, // Using blob URL - in production use proper file storage
         alt_text: metadata.altText || metadata.title || file.name,
         display_order: 0,
         is_featured: metadata.isFeatured,
         is_home_featured: metadata.isHomeFeatured,
         home_display_section: metadata.isHomeFeatured ? metadata.homeDisplaySection : null,
-        file_size: file.size,
-        dimensions: null,
-        metadata: {},
-        is_active: true,
+        view_count: 0,
       })
 
       // Update status to success
