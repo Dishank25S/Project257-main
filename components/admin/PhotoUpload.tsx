@@ -16,12 +16,17 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useCategories } from "@/hooks/useCategories"
 import { usePhotoMutations } from "@/hooks/usePhotos"
 
-interface UploadFile extends File {
+interface UploadFile {
   id: string
+  name: string
+  size: number
+  type: string
+  lastModified: number
   preview: string
   progress: number
   status: "pending" | "uploading" | "success" | "error"
   error?: string
+  file?: File // Optional file reference for base64 conversion
 }
 
 interface PhotoMetadata {
@@ -49,6 +54,21 @@ export function PhotoUpload() {
   const { data: categories } = useCategories()
   const { createPhoto } = usePhotoMutations()
 
+  const convertToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          resolve(reader.result)
+        } else {
+          reject(new Error('Failed to convert file to base64'))
+        }
+      }
+      reader.onerror = () => reject(new Error('Error reading file'))
+      reader.readAsDataURL(file)
+    })
+  }
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map((file) => {
       // Ensure file is a valid File object before creating object URL
@@ -57,8 +77,14 @@ export function PhotoUpload() {
         return null
       }
 
+      // Validate file size exists
+      if (typeof file.size !== 'number' || isNaN(file.size)) {
+        console.error('Invalid file size:', file.size)
+        return null
+      }
+
       // Additional validation for image files
-      if (!file.type.startsWith('image/')) {
+      if (!file.type || !file.type.startsWith('image/')) {
         console.error('File is not an image:', file.type)
         return null
       }
@@ -68,20 +94,31 @@ export function PhotoUpload() {
         console.error('File too large:', file.size)
         return null
       }
+
+      // Check for minimum file size (avoid corrupted files)
+      if (file.size < 1024) { // Less than 1KB
+        console.error('File too small, possibly corrupted:', file.size)
+        return null
+      }
       
       try {
+        const objectURL = URL.createObjectURL(file)
         return {
-          ...file,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          lastModified: file.lastModified,
+          file: file, // Keep reference to original file for base64 conversion
           id: Math.random().toString(36).substr(2, 9),
-          preview: URL.createObjectURL(file),
+          preview: objectURL,
           progress: 0,
           status: "pending" as const,
-        }
+        } as UploadFile & { file: File }
       } catch (error) {
         console.error('Error creating object URL:', error)
         return null
       }
-    }).filter(Boolean) as UploadFile[]
+    }).filter(Boolean) as (UploadFile & { file: File })[]
 
     setFiles((prev) => [...prev, ...newFiles])
   }, [])
@@ -89,15 +126,22 @@ export function PhotoUpload() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      "image/*": [".jpeg", ".jpg", ".png", ".webp"],
+      "image/*": [".jpeg", ".jpg", ".png", ".webp", ".gif", ".bmp"],
     },
     multiple: true,
     maxFiles: 10,
+    maxSize: 10 * 1024 * 1024, // 10MB
     onError: (error) => {
       console.error('Dropzone error:', error)
+      alert(`File upload error: ${error.message}`)
     },
     onDropRejected: (fileRejections) => {
       console.error('Files rejected:', fileRejections)
+      fileRejections.forEach(rejection => {
+        const errors = rejection.errors.map(e => e.message).join(', ')
+        console.log(`${rejection.file.name}: ${errors}`)
+      })
+      alert('Some files were rejected. Check console for details.')
     },
   })
 
@@ -122,40 +166,48 @@ export function PhotoUpload() {
     })
   }
 
-  const uploadFile = async (file: UploadFile) => {
+  const uploadFile = async (file: UploadFile & { file?: File }) => {
     try {
       // Update status to uploading
       setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, status: "uploading" as const } : f)))
 
-      // Simulate upload progress for better UX
-      for (let progress = 0; progress <= 100; progress += 25) {
-        setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, progress } : f)))
-        await new Promise(resolve => setTimeout(resolve, 100))
+      // Validate file before processing
+      if (!file || !file.size || !file.name || !file.type) {
+        throw new Error('Invalid file data')
       }
 
-      // Create a blob URL for the file (this will persist until the page is refreshed)
+      if (!file.type.startsWith('image/')) {
+        throw new Error('File must be an image')
+      }
+
+      // Update progress as we process
+      setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, progress: 25 } : f)))
+
       let imageUrl: string
-      try {
-        // Validate file before creating object URL
-        if (!(file instanceof File)) {
-          throw new Error('Invalid file object')
+      
+      if (file.file) {
+        // Convert file to base64 for permanent storage
+        imageUrl = await convertToBase64(file.file)
+        setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, progress: 50 } : f)))
+      } else {
+        // Fallback to preview URL (for backward compatibility)
+        imageUrl = file.preview
+        if (!imageUrl) {
+          throw new Error('No file or preview URL available')
         }
-        imageUrl = URL.createObjectURL(file)
-      } catch (error) {
-        console.error('Error creating object URL for upload:', error)
-        // Fallback to a placeholder or handle error
-        throw new Error('Failed to process image file')
+        setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, progress: 50 } : f)))
       }
 
-      // For a production app, you would upload to a cloud service like Cloudinary, 
-      // AWS S3, or save to a local server. For this demo, we'll use the blob URL.
-      
-      // Create photo record with all required fields
+      // Simulate additional processing time for better UX
+      await new Promise(resolve => setTimeout(resolve, 200))
+      setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, progress: 75 } : f)))
+
+      // Create photo record with base64 URL
       await createPhoto.mutateAsync({
         category_id: metadata.categoryId,
         title: metadata.title || file.name,
         description: metadata.description,
-        url: imageUrl, // Using blob URL - in production use proper file storage
+        url: imageUrl, // Using base64 data URL for permanent storage
         alt_text: metadata.altText || metadata.title || file.name,
         display_order: 0,
         is_featured: metadata.isFeatured,
@@ -413,7 +465,12 @@ export function PhotoUpload() {
 
                     <div className="space-y-1">
                       <p className="text-sm font-medium truncate">{file.name}</p>
-                      <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(1)} MB</p>
+                      <p className="text-xs text-gray-500">
+                        {file.size && typeof file.size === 'number' && !isNaN(file.size) 
+                          ? `${(file.size / 1024 / 1024).toFixed(1)} MB`
+                          : 'Size unknown'
+                        }
+                      </p>
 
                       {file.status === "uploading" && <Progress value={file.progress} className="h-1" />}
 

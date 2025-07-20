@@ -1,36 +1,41 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { initializeSampleData } from "@/lib/sampleData"
+import { RotateCcw, Plus } from "lucide-react"
+import { localDB } from "@/lib/localDB"
+import { useQueryClient } from "@tanstack/react-query"
 
 export function SampleDataInitializer() {
-  const handleInitializeSampleData = () => {
-    try {
-      initializeSampleData()
-      alert("Sample data added successfully! Refresh the page to see the changes.")
-      window.location.reload()
-    } catch (error) {
-      alert("Error adding sample data: " + error)
+  const queryClient = useQueryClient()
+
+  const handleResetToSampleData = async () => {
+    const confirmed = confirm(
+      "This will reset all data to sample content (6 photos + 2 videos). All your custom content will be replaced. Are you sure?"
+    )
+    if (confirmed) {
+      try {
+        localDB.resetToDefaults()
+        queryClient.invalidateQueries()
+        alert("✅ Website populated with sample content! Check the home page and portfolio.")
+      } catch (error) {
+        alert("❌ Error resetting data: " + error)
+      }
     }
   }
 
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle>Quick Start</CardTitle>
-        <CardDescription>
-          Add some sample photos and videos to get started with your portfolio
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Button onClick={handleInitializeSampleData}>
-          Add Sample Data
-        </Button>
-        <p className="text-sm text-gray-600 mt-2">
-          This will add sample photos and videos to help you see how the portfolio works.
-        </p>
-      </CardContent>
-    </Card>
+    <div className="space-y-3">
+      <Button 
+        onClick={handleResetToSampleData} 
+        className="w-full bg-blue-600 hover:bg-blue-700"
+        size="sm"
+      >
+        <RotateCcw className="w-4 h-4 mr-2" />
+        Load Sample Content
+      </Button>
+      <p className="text-xs text-gray-500 text-center">
+        Populates the website with professional sample photos and videos to showcase the portfolio functionality.
+      </p>
+    </div>
   )
 }

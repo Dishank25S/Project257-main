@@ -72,8 +72,8 @@ export function AboutSection() {
           >
             <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl">
               <Image
-                src="/placeholder.svg?height=600&width=480"
-                alt="Sharp Cinematic - Creative Visual Storytelling"
+                src="https://images.unsplash.com/photo-1554048612-b6a482b224ec?w=600&h=750&fit=crop&crop=center"
+                alt="Professional photographer at work - Sharp Cinematic"
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"

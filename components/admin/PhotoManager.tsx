@@ -215,7 +215,7 @@ export function PhotoManager() {
                   <div>
                     <Label htmlFor="edit-category">Category</Label>
                     <Select
-                      value={editingPhoto.category_id}
+                      value={editingPhoto.category_id || undefined}
                       onValueChange={(value) =>
                         setEditingPhoto((prev) => (prev ? { ...prev, category_id: value } : null))
                       }

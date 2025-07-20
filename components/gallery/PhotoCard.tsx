@@ -5,7 +5,7 @@ import Image from "next/image"
 import type { Photo } from "@/lib/supabase"
 
 interface PhotoCardProps {
-  photo: Photo
+  photo: Photo & { category_name?: string }
   onClick: () => void
   index: number
 }

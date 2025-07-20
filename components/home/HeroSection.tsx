@@ -47,10 +47,61 @@ export function HeroSection() {
 
   if (!heroContent.length) {
     return (
-      <section className="relative h-screen bg-gray-100 flex items-center justify-center px-4">
-        <div className="text-center max-w-4xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-gray-900 mb-4">Sharp Cinematic</h1>
-          <p className="text-lg sm:text-xl text-gray-600">Creative Visual Storytelling</p>
+      <section className="relative h-screen overflow-hidden">
+        <Image
+          src="https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1920&h=1080&fit=crop&crop=center"
+          alt="Professional photography equipment - Sharp Cinematic"
+          fill
+          className="object-cover"
+          priority
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 flex items-center justify-center text-center text-white z-10 px-4">
+          <div className="max-w-4xl mx-auto">
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6"
+            >
+              Sharp Cinematic
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-lg sm:text-xl md:text-2xl mb-2 sm:mb-4 font-light"
+            >
+              Creative Visual Storytelling
+            </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 text-gray-200 px-4"
+            >
+              Capturing Life's Beautiful Moments with Cinematic Excellence
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4"
+            >
+              <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 w-full sm:w-auto" asChild>
+                <Link href="/portfolio">View Portfolio</Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white hover:text-gray-900 bg-transparent w-full sm:w-auto"
+                onClick={handleContactClick}
+              >
+                Contact Now
+              </Button>
+            </motion.div>
+          </div>
         </div>
       </section>
     )

@@ -111,6 +111,138 @@ const DEFAULT_CONTACT: ContactInfo = {
   updated_at: new Date().toISOString()
 }
 
+// Sample photos for demonstration
+const DEFAULT_PHOTOS: Photo[] = [
+  {
+    id: 'sample-1',
+    category_id: '1', // Portraits
+    title: 'Professional Portrait',
+    description: 'A stunning professional portrait capturing natural beauty and confidence.',
+    url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&h=800&fit=crop&crop=faces',
+    alt_text: 'Professional portrait of a woman',
+    display_order: 1,
+    is_featured: true,
+    is_home_featured: true,
+    home_display_section: 'top',
+    view_count: 0,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: 'sample-2',
+    category_id: '2', // Weddings
+    title: 'Wedding Ceremony',
+    description: 'Beautiful wedding ceremony capturing the special moment between the couple.',
+    url: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&h=800&fit=crop&crop=center',
+    alt_text: 'Wedding ceremony with bride and groom',
+    display_order: 2,
+    is_featured: true,
+    is_home_featured: true,
+    home_display_section: 'top',
+    view_count: 0,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: 'sample-3',
+    category_id: '3', // Events
+    title: 'Corporate Event',
+    description: 'Dynamic corporate event photography showcasing professional networking.',
+    url: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800&h=800&fit=crop&crop=center',
+    alt_text: 'Corporate event with people networking',
+    display_order: 3,
+    is_featured: true,
+    is_home_featured: true,
+    home_display_section: 'bottom',
+    view_count: 0,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: 'sample-4',
+    category_id: '1', // Portraits
+    title: 'Artistic Portrait',
+    description: 'Creative artistic portrait with dramatic lighting and composition.',
+    url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=800&fit=crop&crop=faces',
+    alt_text: 'Artistic portrait of a man',
+    display_order: 4,
+    is_featured: false,
+    is_home_featured: true,
+    home_display_section: 'bottom',
+    view_count: 0,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: 'sample-5',
+    category_id: '2', // Weddings
+    title: 'Wedding Reception',
+    description: 'Joyful wedding reception celebration with family and friends.',
+    url: 'https://images.unsplash.com/photo-1464207687429-7505649dae38?w=800&h=800&fit=crop&crop=center',
+    alt_text: 'Wedding reception with dancing couples',
+    display_order: 5,
+    is_featured: false,
+    is_home_featured: false,
+    home_display_section: null,
+    view_count: 0,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: 'sample-6',
+    category_id: '3', // Events
+    title: 'Birthday Celebration',
+    description: 'Fun birthday celebration capturing joy and happiness.',
+    url: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&h=800&fit=crop&crop=center',
+    alt_text: 'Birthday celebration with cake and balloons',
+    display_order: 6,
+    is_featured: false,
+    is_home_featured: false,
+    home_display_section: null,
+    view_count: 0,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
+]
+
+// Sample videos for demonstration
+const DEFAULT_VIDEOS: Video[] = [
+  {
+    id: 'video-sample-1',
+    category_id: '2', // Weddings
+    title: 'Wedding Highlights Reel',
+    description: 'Beautiful wedding highlights showcasing the best moments of the special day.',
+    youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    youtube_id: 'dQw4w9WgXcQ',
+    custom_thumbnail_url: null,
+    duration: null,
+    display_order: 1,
+    is_featured: true,
+    is_home_featured: true,
+    home_display_section: 'top',
+    view_count: 0,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: 'video-sample-2',
+    category_id: '3', // Events
+    title: 'Corporate Event Coverage',
+    description: 'Professional corporate event video showcasing key moments and presentations.',
+    youtube_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    youtube_id: 'dQw4w9WgXcQ',
+    custom_thumbnail_url: null,
+    duration: null,
+    display_order: 2,
+    is_featured: false,
+    is_home_featured: true,
+    home_display_section: 'bottom',
+    view_count: 0,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
+]
+
 // Utility functions
 const generateId = () => Math.random().toString(36).substr(2, 9)
 
@@ -147,13 +279,16 @@ const initializeData = () => {
     setToStorage(STORAGE_KEYS.CONTACT, DEFAULT_CONTACT)
   }
   
-  // Initialize empty arrays for photos and videos
-  if (!localStorage.getItem(STORAGE_KEYS.PHOTOS)) {
-    setToStorage(STORAGE_KEYS.PHOTOS, [])
+  // Initialize sample photos if not exists or empty
+  const existingPhotos = getFromStorage<Photo[]>(STORAGE_KEYS.PHOTOS, [])
+  if (existingPhotos.length === 0) {
+    setToStorage(STORAGE_KEYS.PHOTOS, DEFAULT_PHOTOS)
   }
   
-  if (!localStorage.getItem(STORAGE_KEYS.VIDEOS)) {
-    setToStorage(STORAGE_KEYS.VIDEOS, [])
+  // Initialize sample videos if not exists or empty
+  const existingVideos = getFromStorage<Video[]>(STORAGE_KEYS.VIDEOS, [])
+  if (existingVideos.length === 0) {
+    setToStorage(STORAGE_KEYS.VIDEOS, DEFAULT_VIDEOS)
   }
 }
 
@@ -331,6 +466,18 @@ export const localDB = {
     hasPassword: (): boolean => {
       return !!localStorage.getItem(STORAGE_KEYS.ADMIN_PASSWORD)
     }
+  },
+  
+  // Utility function to reset all data to defaults (useful for demo)
+  resetToDefaults: () => {
+    if (typeof window === 'undefined') return
+    
+    setToStorage(STORAGE_KEYS.CATEGORIES, DEFAULT_CATEGORIES)
+    setToStorage(STORAGE_KEYS.PHOTOS, DEFAULT_PHOTOS)
+    setToStorage(STORAGE_KEYS.VIDEOS, DEFAULT_VIDEOS)
+    setToStorage(STORAGE_KEYS.CONTACT, DEFAULT_CONTACT)
+    
+    console.log('Database reset to default sample data')
   }
 }
 

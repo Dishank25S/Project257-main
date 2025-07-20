@@ -23,8 +23,8 @@ const videoSchema = z.object({
   description: z.string().optional(),
   youtube_url: z.string().url("Please enter a valid YouTube URL"),
   category_id: z.string().min(1, "Category is required"),
-  is_featured: z.boolean().default(false),
-  is_home_featured: z.boolean().default(false),
+  is_featured: z.boolean(),
+  is_home_featured: z.boolean(),
   home_display_section: z.enum(["hero", "top", "bottom"]).optional(),
 })
 

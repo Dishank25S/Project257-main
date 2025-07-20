@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Camera, FolderOpen, Upload, BarChart3, LogOut, Plus, Eye, Star, Play, Youtube, Home, Settings, Users, Palette } from "lucide-react"
+import { Camera, FolderOpen, Upload, BarChart3, LogOut, Plus, Eye, Star, Play, Youtube, Home, Settings, Users, Palette, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -20,6 +20,8 @@ import { useCategories } from "@/hooks/useCategories"
 import { usePhotos } from "@/hooks/usePhotos"
 import { useVideos } from "@/hooks/useVideos"
 import { useContactInfo } from "@/hooks/useContactInfo"
+import { localDB } from "@/lib/localDB"
+import { useQueryClient } from "@tanstack/react-query"
 
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("overview")
@@ -28,6 +30,19 @@ export function AdminDashboard() {
   const { data: allPhotos } = usePhotos()
   const { data: allVideos } = useVideos()
   const { data: contactInfo } = useContactInfo()
+  const queryClient = useQueryClient()
+
+  const handleResetToSampleData = async () => {
+    const confirmed = confirm(
+      "This will reset all data to sample content. All your custom photos, videos, and settings will be lost. Are you sure?"
+    )
+    if (confirmed) {
+      localDB.resetToDefaults()
+      // Invalidate all queries to refresh the UI
+      queryClient.invalidateQueries()
+      alert("Database reset to sample data successfully!")
+    }
+  }
 
   const stats = {
     totalPhotos: allPhotos?.length || 0,

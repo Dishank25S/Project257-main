@@ -8,6 +8,11 @@ export function usePhotos(categoryId?: string) {
       const photos = localDB.photos.getAll(categoryId)
       const categories = localDB.categories.getAll()
       
+      console.log('usePhotos query - Total photos retrieved:', photos.length)
+      if (categoryId) {
+        console.log('Filtered by category:', categoryId)
+      }
+      
       return photos
         .sort((a, b) => a.display_order - b.display_order)
         .map((photo) => ({
