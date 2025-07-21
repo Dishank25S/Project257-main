@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { productionDB } from '@/lib/productionDB'
+import { vercelDB } from '@/lib/vercelDB'
 
 // GET - Get all videos or videos by category
 export async function GET(request: NextRequest) {
@@ -7,8 +7,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const categoryId = searchParams.get('categoryId')
     
-    const videos = productionDB.videos.getAll(categoryId || undefined)
-    const categories = productionDB.categories.getAll()
+    const videos = vercelDB.videos.getAll(categoryId || undefined)
+    const categories = vercelDB.categories.getAll()
     
     const result = videos
       .sort((a, b) => a.display_order - b.display_order)
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    const newVideo = productionDB.videos.create(videoData)
+    const newVideo = vercelDB.videos.create(videoData)
     return NextResponse.json(newVideo)
   } catch (error) {
     console.error('Error creating video:', error)
@@ -66,7 +66,7 @@ export async function PUT(request: NextRequest) {
       )
     }
     
-    const updated = productionDB.videos.update(id, updates)
+    const updated = vercelDB.videos.update(id, updates)
     if (!updated) {
       return NextResponse.json(
         { error: 'Video not found' },
@@ -106,7 +106,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
     
-    const success = productionDB.videos.delete(id)
+    const success = vercelDB.videos.delete(id)
     if (!success) {
       return NextResponse.json(
         { error: 'Video not found' },

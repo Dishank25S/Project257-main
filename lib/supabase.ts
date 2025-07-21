@@ -1,7 +1,7 @@
-// Main database interface - using production-ready static system for Vercel
-import { productionDB } from './productionDB'
+// Main database interface - using vercel-ready in-memory system for serverless deployment
+import { vercelDB } from './vercelDB'
 export * from './staticData'
 
-// Export the production database system that works on Vercel
-export const localDB = productionDB
-export { productionDB }
+// Export the vercel database system that works on serverless deployment
+export const localDB = vercelDB
+export { vercelDB }

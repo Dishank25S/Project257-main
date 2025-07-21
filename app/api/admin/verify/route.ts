@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { productionDB } from '@/lib/productionDB'
+import { vercelDB } from '@/lib/vercelDB'
 
 export async function POST(request: NextRequest) {
   try {
     const { password } = await request.json()
     
-    const isValid = productionDB.admin.verifyPassword(password)
+    const isValid = vercelDB.admin.verifyPassword(password)
     
     return NextResponse.json({
       valid: isValid,

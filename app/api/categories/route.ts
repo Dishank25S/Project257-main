@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { productionDB } from '@/lib/productionDB'
+import { vercelDB } from '@/lib/vercelDB'
 
 // GET - Get all categories
 export async function GET() {
   try {
-    const categories = productionDB.categories.getAll()
+    const categories = vercelDB.categories.getAll()
     return NextResponse.json(categories)
   } catch (error) {
     console.error('Error fetching categories:', error)
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    const newCategory = productionDB.categories.create(categoryData)
+    const newCategory = vercelDB.categories.create(categoryData)
     return NextResponse.json(newCategory)
   } catch (error) {
     console.error('Error creating category:', error)
@@ -54,7 +54,7 @@ export async function PUT(request: NextRequest) {
       )
     }
     
-    const updated = productionDB.categories.update(id, updates)
+    const updated = vercelDB.categories.update(id, updates)
     if (!updated) {
       return NextResponse.json(
         { error: 'Category not found' },
@@ -94,7 +94,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
     
-    const success = productionDB.categories.delete(id)
+    const success = vercelDB.categories.delete(id)
     if (!success) {
       return NextResponse.json(
         { error: 'Category not found' },

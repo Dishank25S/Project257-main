@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { productionDB } from '@/lib/productionDB'
+import { vercelDB } from '@/lib/vercelDB'
 
 // GET - Get all photos or photos by category
 export async function GET(request: NextRequest) {
@@ -7,8 +7,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const categoryId = searchParams.get('categoryId')
     
-    const photos = productionDB.photos.getAll(categoryId || undefined)
-    const categories = productionDB.categories.getAll()
+    const photos = vercelDB.photos.getAll(categoryId || undefined)
+    const categories = vercelDB.categories.getAll()
     
     const result = photos
       .sort((a, b) => a.display_order - b.display_order)
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    const newPhoto = productionDB.photos.create(photoData)
+    const newPhoto = vercelDB.photos.create(photoData)
     return NextResponse.json(newPhoto)
   } catch (error) {
     console.error('Error creating photo:', error)
@@ -66,7 +66,7 @@ export async function PUT(request: NextRequest) {
       )
     }
     
-    const updated = productionDB.photos.update(id, updates)
+    const updated = vercelDB.photos.update(id, updates)
     if (!updated) {
       return NextResponse.json(
         { error: 'Photo not found' },
@@ -106,7 +106,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
     
-    const success = productionDB.photos.delete(id)
+    const success = vercelDB.photos.delete(id)
     if (!success) {
       return NextResponse.json(
         { error: 'Photo not found' },
