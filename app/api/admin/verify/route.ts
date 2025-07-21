@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseDB } from '@/lib/supabase-db'
+import { productionDB } from '@/lib/productionDB'
 
 export async function POST(request: NextRequest) {
   try {
     const { password } = await request.json()
     
-    const isValid = await supabaseDB.admin.verifyPassword(password)
+    const isValid = productionDB.admin.verifyPassword(password)
     
     return NextResponse.json({
       valid: isValid,
