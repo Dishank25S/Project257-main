@@ -4,14 +4,14 @@ import { localDB, type Category } from "@/lib/supabase"
 export function useCategories() {
   return useQuery({
     queryKey: ["categories"],
-    queryFn: async () => {
+    queryFn: () => {
       const categories = localDB.categories.getAll()
       const photos = localDB.photos.getAll()
       
-      return categories.map((category) => ({
+      return Promise.resolve(categories.map((category) => ({
         ...category,
         photo_count: photos.filter(p => p.category_id === category.id).length,
-      })) as (Category & { photo_count: number })[]
+      })) as (Category & { photo_count: number })[])
     },
   })
 }
@@ -20,9 +20,9 @@ export function useCategoryMutations() {
   const queryClient = useQueryClient()
 
   const createCategory = useMutation({
-    mutationFn: async (category: Omit<Category, "id" | "created_at" | "updated_at">) => {
+    mutationFn: (category: Omit<Category, "id" | "created_at" | "updated_at">) => {
       const newCategory = localDB.categories.create(category)
-      return newCategory
+      return Promise.resolve(newCategory)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] })
@@ -30,10 +30,10 @@ export function useCategoryMutations() {
   })
 
   const updateCategory = useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Category> & { id: string }) => {
+    mutationFn: ({ id, ...updates }: Partial<Category> & { id: string }) => {
       const updated = localDB.categories.update(id, updates)
       if (!updated) throw new Error('Category not found')
-      return updated
+      return Promise.resolve(updated)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] })
@@ -41,9 +41,10 @@ export function useCategoryMutations() {
   })
 
   const deleteCategory = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: (id: string) => {
       const success = localDB.categories.delete(id)
       if (!success) throw new Error('Category not found')
+      return Promise.resolve()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] })

@@ -4,7 +4,7 @@ import { localDB, type Video } from "@/lib/supabase"
 export function useVideos(categoryId?: string) {
   return useQuery({
     queryKey: ["videos", categoryId],
-    queryFn: async () => {
+    queryFn: () => {
       const videos = localDB.videos.getAll(categoryId)
       const categories = localDB.categories.getAll()
       
@@ -21,7 +21,7 @@ export function useVideos(categoryId?: string) {
 export function useFeaturedVideos() {
   return useQuery({
     queryKey: ["videos", "featured"],
-    queryFn: async () => {
+    queryFn: () => {
       const videos = localDB.videos.getAll()
       const categories = localDB.categories.getAll()
       
@@ -40,7 +40,7 @@ export function useFeaturedVideos() {
 export function useHomeFeaturedVideos(section?: string) {
   return useQuery({
     queryKey: ["videos", "home-featured", section],
-    queryFn: async () => {
+    queryFn: () => {
       const videos = localDB.videos.getAll()
       const categories = localDB.categories.getAll()
       
@@ -64,9 +64,9 @@ export function useVideoMutations() {
   const queryClient = useQueryClient()
 
   const createVideo = useMutation({
-    mutationFn: async (video: Omit<Video, "id" | "created_at" | "updated_at">) => {
+    mutationFn: (video: Omit<Video, "id" | "created_at" | "updated_at">) => {
       const newVideo = localDB.videos.create(video)
-      return newVideo
+      return Promise.resolve(newVideo)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["videos"] })
@@ -74,10 +74,10 @@ export function useVideoMutations() {
   })
 
   const updateVideo = useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Video> & { id: string }) => {
+    mutationFn: ({ id, ...updates }: Partial<Video> & { id: string }) => {
       const updated = localDB.videos.update(id, updates)
       if (!updated) throw new Error('Video not found')
-      return updated
+      return Promise.resolve(updated)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["videos"] })
@@ -85,9 +85,10 @@ export function useVideoMutations() {
   })
 
   const deleteVideo = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: (id: string) => {
       const success = localDB.videos.delete(id)
       if (!success) throw new Error('Video not found')
+      return Promise.resolve()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["videos"] })

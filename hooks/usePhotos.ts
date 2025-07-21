@@ -4,7 +4,7 @@ import { localDB, type Photo } from "@/lib/supabase"
 export function usePhotos(categoryId?: string) {
   return useQuery({
     queryKey: ["photos", categoryId],
-    queryFn: async () => {
+    queryFn: () => {
       const photos = localDB.photos.getAll(categoryId)
       const categories = localDB.categories.getAll()
       
@@ -26,7 +26,7 @@ export function usePhotos(categoryId?: string) {
 export function useFeaturedPhotos() {
   return useQuery({
     queryKey: ["photos", "featured"],
-    queryFn: async () => {
+    queryFn: () => {
       const photos = localDB.photos.getAll()
       const categories = localDB.categories.getAll()
       
@@ -45,7 +45,7 @@ export function useFeaturedPhotos() {
 export function useHomeFeaturedPhotos(section?: string) {
   return useQuery({
     queryKey: ["photos", "home-featured", section],
-    queryFn: async () => {
+    queryFn: () => {
       const photos = localDB.photos.getAll()
       const categories = localDB.categories.getAll()
       
@@ -69,9 +69,9 @@ export function usePhotoMutations() {
   const queryClient = useQueryClient()
 
   const createPhoto = useMutation({
-    mutationFn: async (photo: Omit<Photo, "id" | "created_at" | "updated_at">) => {
+    mutationFn: (photo: Omit<Photo, "id" | "created_at" | "updated_at">) => {
       const newPhoto = localDB.photos.create(photo)
-      return newPhoto
+      return Promise.resolve(newPhoto)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["photos"] })
@@ -79,10 +79,10 @@ export function usePhotoMutations() {
   })
 
   const updatePhoto = useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Photo> & { id: string }) => {
+    mutationFn: ({ id, ...updates }: Partial<Photo> & { id: string }) => {
       const updated = localDB.photos.update(id, updates)
       if (!updated) throw new Error('Photo not found')
-      return updated
+      return Promise.resolve(updated)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["photos"] })
@@ -90,9 +90,10 @@ export function usePhotoMutations() {
   })
 
   const deletePhoto = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: (id: string) => {
       const success = localDB.photos.delete(id)
       if (!success) throw new Error('Photo not found')
+      return Promise.resolve()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["photos"] })

@@ -4,9 +4,7 @@ import { localDB, type ContactInfo } from "@/lib/supabase"
 export function useContactInfo() {
   return useQuery({
     queryKey: ["contact-info"],
-    queryFn: async () => {
-      return localDB.contact.get()
-    },
+    queryFn: () => Promise.resolve(localDB.contact.get()),
   })
 }
 
@@ -14,8 +12,8 @@ export function useContactInfoMutations() {
   const queryClient = useQueryClient()
 
   const updateContactInfo = useMutation({
-    mutationFn: async (updates: Partial<ContactInfo>) => {
-      return localDB.contact.update(updates)
+    mutationFn: (updates: Partial<ContactInfo>) => {
+      return Promise.resolve(localDB.contact.update(updates))
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contact-info"] })

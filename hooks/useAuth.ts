@@ -19,13 +19,13 @@ export function useAuth() {
   }, [])
 
   const login = {
-    mutateAsync: async ({ password }: { password: string }) => {
+    mutateAsync: ({ password }: { password: string }) => {
       const isValid = localDB.admin.verifyPassword(password)
       if (isValid) {
         localStorage.setItem("admin_logged_in", "true")
         setUser({ email: "admin" })
         router.push("/admin/dashboard")
-        return { user: { email: "admin" } }
+        return Promise.resolve({ user: { email: "admin" } })
       } else {
         throw new Error("Invalid password")
       }
