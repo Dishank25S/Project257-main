@@ -20,7 +20,8 @@ export function useAuth() {
 
   const login = {
     mutateAsync: async ({ password }: { password: string }) => {
-      if (localDB.auth.checkPassword(password)) {
+      const isValid = await localDB.admin.verifyPassword(password)
+      if (isValid) {
         localStorage.setItem("admin_logged_in", "true")
         setUser({ email: "admin" })
         router.push("/admin/dashboard")
@@ -41,12 +42,12 @@ export function useAuth() {
     },
   }
 
-  const setPassword = (password: string) => {
-    localDB.auth.setPassword(password)
+  const setPassword = async (password: string) => {
+    await localDB.admin.setPassword(password)
   }
 
-  const hasPassword = () => {
-    return localDB.auth.hasPassword()
+  const hasPassword = async () => {
+    return await localDB.admin.hasPassword()
   }
 
   return {
