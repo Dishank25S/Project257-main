@@ -5,7 +5,7 @@ export function useContactInfo() {
   return useQuery({
     queryKey: ["contact-info"],
     queryFn: async () => {
-      return await localDB.contact.get()
+      return localDB.contact.get()
     },
   })
 }
@@ -15,7 +15,7 @@ export function useContactInfoMutations() {
 
   const updateContactInfo = useMutation({
     mutationFn: async (updates: Partial<ContactInfo>) => {
-      return await localDB.contact.update(updates)
+      return localDB.contact.update(updates)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["contact-info"] })

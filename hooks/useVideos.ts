@@ -5,8 +5,8 @@ export function useVideos(categoryId?: string) {
   return useQuery({
     queryKey: ["videos", categoryId],
     queryFn: async () => {
-      const videos = await localDB.videos.getAll(categoryId)
-      const categories = await localDB.categories.getAll()
+      const videos = localDB.videos.getAll(categoryId)
+      const categories = localDB.categories.getAll()
       
       return videos
         .sort((a, b) => a.display_order - b.display_order)
@@ -22,8 +22,8 @@ export function useFeaturedVideos() {
   return useQuery({
     queryKey: ["videos", "featured"],
     queryFn: async () => {
-      const videos = await localDB.videos.getAll()
-      const categories = await localDB.categories.getAll()
+      const videos = localDB.videos.getAll()
+      const categories = localDB.categories.getAll()
       
       const featuredVideos = videos
         .filter(video => video.is_featured)
@@ -41,8 +41,8 @@ export function useHomeFeaturedVideos(section?: string) {
   return useQuery({
     queryKey: ["videos", "home-featured", section],
     queryFn: async () => {
-      const videos = await localDB.videos.getAll()
-      const categories = await localDB.categories.getAll()
+      const videos = localDB.videos.getAll()
+      const categories = localDB.categories.getAll()
       
       let filteredVideos = videos.filter(video => video.is_home_featured)
       
@@ -65,7 +65,7 @@ export function useVideoMutations() {
 
   const createVideo = useMutation({
     mutationFn: async (video: Omit<Video, "id" | "created_at" | "updated_at">) => {
-      const newVideo = await localDB.videos.create(video)
+      const newVideo = localDB.videos.create(video)
       return newVideo
     },
     onSuccess: () => {
@@ -75,7 +75,7 @@ export function useVideoMutations() {
 
   const updateVideo = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Video> & { id: string }) => {
-      const updated = await localDB.videos.update(id, updates)
+      const updated = localDB.videos.update(id, updates)
       if (!updated) throw new Error('Video not found')
       return updated
     },
@@ -86,7 +86,7 @@ export function useVideoMutations() {
 
   const deleteVideo = useMutation({
     mutationFn: async (id: string) => {
-      const success = await localDB.videos.delete(id)
+      const success = localDB.videos.delete(id)
       if (!success) throw new Error('Video not found')
     },
     onSuccess: () => {

@@ -5,8 +5,8 @@ export function useCategories() {
   return useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const categories = await localDB.categories.getAll()
-      const photos = await localDB.photos.getAll()
+      const categories = localDB.categories.getAll()
+      const photos = localDB.photos.getAll()
       
       return categories.map((category) => ({
         ...category,
@@ -21,7 +21,7 @@ export function useCategoryMutations() {
 
   const createCategory = useMutation({
     mutationFn: async (category: Omit<Category, "id" | "created_at" | "updated_at">) => {
-      const newCategory = await localDB.categories.create(category)
+      const newCategory = localDB.categories.create(category)
       return newCategory
     },
     onSuccess: () => {
@@ -31,7 +31,7 @@ export function useCategoryMutations() {
 
   const updateCategory = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Category> & { id: string }) => {
-      const updated = await localDB.categories.update(id, updates)
+      const updated = localDB.categories.update(id, updates)
       if (!updated) throw new Error('Category not found')
       return updated
     },
@@ -42,7 +42,7 @@ export function useCategoryMutations() {
 
   const deleteCategory = useMutation({
     mutationFn: async (id: string) => {
-      const success = await localDB.categories.delete(id)
+      const success = localDB.categories.delete(id)
       if (!success) throw new Error('Category not found')
     },
     onSuccess: () => {

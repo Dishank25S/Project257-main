@@ -5,8 +5,8 @@ export function usePhotos(categoryId?: string) {
   return useQuery({
     queryKey: ["photos", categoryId],
     queryFn: async () => {
-      const photos = await localDB.photos.getAll(categoryId)
-      const categories = await localDB.categories.getAll()
+      const photos = localDB.photos.getAll(categoryId)
+      const categories = localDB.categories.getAll()
       
       console.log('usePhotos query - Total photos retrieved:', photos.length)
       if (categoryId) {
@@ -27,8 +27,8 @@ export function useFeaturedPhotos() {
   return useQuery({
     queryKey: ["photos", "featured"],
     queryFn: async () => {
-      const photos = await localDB.photos.getAll()
-      const categories = await localDB.categories.getAll()
+      const photos = localDB.photos.getAll()
+      const categories = localDB.categories.getAll()
       
       const featuredPhotos = photos
         .filter(photo => photo.is_featured)
@@ -46,8 +46,8 @@ export function useHomeFeaturedPhotos(section?: string) {
   return useQuery({
     queryKey: ["photos", "home-featured", section],
     queryFn: async () => {
-      const photos = await localDB.photos.getAll()
-      const categories = await localDB.categories.getAll()
+      const photos = localDB.photos.getAll()
+      const categories = localDB.categories.getAll()
       
       let filteredPhotos = photos.filter(photo => photo.is_home_featured)
       
@@ -70,7 +70,7 @@ export function usePhotoMutations() {
 
   const createPhoto = useMutation({
     mutationFn: async (photo: Omit<Photo, "id" | "created_at" | "updated_at">) => {
-      const newPhoto = await localDB.photos.create(photo)
+      const newPhoto = localDB.photos.create(photo)
       return newPhoto
     },
     onSuccess: () => {
@@ -80,7 +80,7 @@ export function usePhotoMutations() {
 
   const updatePhoto = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Photo> & { id: string }) => {
-      const updated = await localDB.photos.update(id, updates)
+      const updated = localDB.photos.update(id, updates)
       if (!updated) throw new Error('Photo not found')
       return updated
     },
@@ -91,7 +91,7 @@ export function usePhotoMutations() {
 
   const deletePhoto = useMutation({
     mutationFn: async (id: string) => {
-      const success = await localDB.photos.delete(id)
+      const success = localDB.photos.delete(id)
       if (!success) throw new Error('Photo not found')
     },
     onSuccess: () => {

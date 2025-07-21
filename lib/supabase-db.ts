@@ -317,7 +317,8 @@ export const supabaseDB = {
   admin: {
     async verifyPassword(password: string): Promise<boolean> {
       // Use environment variable for admin password
-      const adminPassword = process.env.ADMIN_PASSWORD || process.env.ADMIN_DEFAULT_PASSWORD || 'admin123'
+      const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
+      console.log('Verifying password in environment:', process.env.NODE_ENV)
       return password === adminPassword
     },
 

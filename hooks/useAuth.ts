@@ -20,7 +20,7 @@ export function useAuth() {
 
   const login = {
     mutateAsync: async ({ password }: { password: string }) => {
-      const isValid = await localDB.admin.verifyPassword(password)
+      const isValid = localDB.admin.verifyPassword(password)
       if (isValid) {
         localStorage.setItem("admin_logged_in", "true")
         setUser({ email: "admin" })
@@ -42,13 +42,12 @@ export function useAuth() {
     },
   }
 
-  const setPassword = async (password: string) => {
-    await localDB.admin.setPassword(password)
+  const setPassword = (password: string) => {
+    localDB.admin.setPassword(password)
   }
 
   const hasPassword = () => {
-    // Since we always have a default password, return true
-    return true
+    return localDB.admin.hasPassword()
   }
 
   return {

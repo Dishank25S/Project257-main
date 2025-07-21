@@ -322,7 +322,9 @@ export const productionDB = {
     verifyPassword: (password: string): boolean => {
       if (isProduction) {
         // Use environment variable for production password
-        return password === process.env.ADMIN_PASSWORD || password === 'admin123'
+        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
+        console.log('Production mode - checking password against env var')
+        return password === adminPassword
       }
       const stored = getFromStorage(STORAGE_KEYS.ADMIN_PASSWORD, 'admin123')
       return stored === password

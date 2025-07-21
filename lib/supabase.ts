@@ -1,12 +1,7 @@
-// Production-ready database implementation
-export * from './productionDB'
+// Main database interface - using production-ready static system for Vercel
+import { productionDB } from './productionDB'
 export * from './staticData'
 
-// Re-export the production database as localDB for compatibility
-// Main database interface - now using Supabase
-import { supabaseDB } from './supabase-db'
-export * from './staticData'
-
-// Export Supabase database as the main database
-export const localDB = supabaseDB
-export { supabaseDB as productionDB }
+// Export the production database system that works on Vercel
+export const localDB = productionDB
+export { productionDB }
