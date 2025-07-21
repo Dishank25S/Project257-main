@@ -37,6 +37,7 @@ After adding the environment variable, redeploy your Vercel project.
 
 - **Development Mode**: Images are stored as base64 in localStorage (for quick testing)
 - **Production Mode**: Images are uploaded to ImgBB cloud hosting (persistent storage)
+- **File Size Limit**: Images are limited to 2MB each to conserve free tier quota
 - **Fallback**: If ImgBB upload fails, it automatically falls back to base64
 
 ## Alternative Image Hosting Services
@@ -52,9 +53,10 @@ If you prefer other services, you can modify the `uploadToImgBB` function in `co
 
 ✅ **Persistent Storage**: Images survive Vercel deployments
 ✅ **Fast Loading**: Images served from CDN
-✅ **Free Tier**: ImgBB offers generous free usage
+✅ **Free Tier**: ImgBB offers generous free usage (images limited to 2MB each)
 ✅ **Automatic Fallback**: Base64 backup if cloud upload fails
 ✅ **Easy Setup**: Just add one environment variable
+✅ **Size Optimization**: 2MB limit helps conserve free tier quota
 
 ## Verification
 

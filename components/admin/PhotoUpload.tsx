@@ -121,8 +121,8 @@ export function PhotoUpload() {
         return null
       }
 
-      // Check file size (max 10MB)
-      if (file.size > 10 * 1024 * 1024) {
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
         console.error('File too large:', file.size)
         return null
       }
@@ -162,7 +162,7 @@ export function PhotoUpload() {
     },
     multiple: true,
     maxFiles: 10,
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: 2 * 1024 * 1024, // 2MB
     onError: (error) => {
       console.error('Dropzone error:', error)
       alert(`File upload error: ${error.message}`)
@@ -430,7 +430,7 @@ export function PhotoUpload() {
             ) : (
               <div>
                 <p className="text-gray-600 font-medium mb-2">Drag & drop photos here, or click to select</p>
-                <p className="text-sm text-gray-500">Supports: JPEG, PNG, WebP (Max 10MB each, 10 files max)</p>
+                <p className="text-sm text-gray-500">Supports: JPEG, PNG, WebP (Max 2MB each, 10 files max)</p>
               </div>
             )}
           </div>
