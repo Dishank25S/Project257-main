@@ -46,8 +46,9 @@ export function useAuth() {
     await localDB.admin.setPassword(password)
   }
 
-  const hasPassword = async () => {
-    return await localDB.admin.hasPassword()
+  const hasPassword = () => {
+    // Since we always have a default password, return true
+    return true
   }
 
   return {

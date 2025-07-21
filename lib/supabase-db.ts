@@ -263,14 +263,25 @@ export const supabaseDB = {
     },
 
     async update(updates: Partial<ContactInfo>): Promise<ContactInfo | null> {
-      // First try to get the existing contact info
-      const existing = await this.get()
+      // First try to get the existing contact info directly
+      const { data: existing, error: fetchError } = await supabase
+        .from('contact_info')
+        .select('*')
+        .limit(1)
+        .single()
       
-      if (!existing) {
+      if (fetchError || !existing) {
         // Create new contact info if none exists
         const { data, error } = await supabase
           .from('contact_info')
           .insert([{
+            photographer_name: 'Photography Studio',
+            phone: '+1 (555) 123-4567',
+            location: '123 Photography Street, Creative District, NY 10001',
+            email: 'hello@photographystudio.com',
+            instagram_url: 'https://instagram.com/photographystudio',
+            facebook_url: 'https://facebook.com/PhotographyStudioNY',
+            whatsapp_url: null,
             ...updates,
             updated_at: new Date().toISOString()
           }])
