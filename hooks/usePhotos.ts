@@ -13,12 +13,14 @@ export function usePhotos(categoryId?: string) {
         console.log('Filtered by category:', categoryId)
       }
       
-      return photos
+      const result = photos
         .sort((a, b) => a.display_order - b.display_order)
         .map((photo) => ({
           ...photo,
           category_name: categories.find(c => c.id === photo.category_id)?.name || 'Uncategorized',
         })) as (Photo & { category_name: string })[]
+        
+      return Promise.resolve(result)
     },
   })
 }
@@ -34,10 +36,12 @@ export function useFeaturedPhotos() {
         .filter(photo => photo.is_featured)
         .slice(0, 6)
         
-      return featuredPhotos.map((photo) => ({
+      const result = featuredPhotos.map((photo) => ({
         ...photo,
         category_name: categories.find(c => c.id === photo.category_id)?.name || 'Uncategorized',
       })) as (Photo & { category_name: string })[]
+      
+      return Promise.resolve(result)
     },
   })
 }
@@ -55,12 +59,14 @@ export function useHomeFeaturedPhotos(section?: string) {
         filteredPhotos = filteredPhotos.filter(photo => photo.home_display_section === section)
       }
 
-      return filteredPhotos
+      const result = filteredPhotos
         .sort((a, b) => a.display_order - b.display_order)
         .map((photo) => ({
           ...photo,
           category_name: categories.find(c => c.id === photo.category_id)?.name || 'Uncategorized',
         })) as (Photo & { category_name: string })[]
+        
+      return Promise.resolve(result)
     },
   })
 }

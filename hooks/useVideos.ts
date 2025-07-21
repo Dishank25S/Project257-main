@@ -8,12 +8,14 @@ export function useVideos(categoryId?: string) {
       const videos = localDB.videos.getAll(categoryId)
       const categories = localDB.categories.getAll()
       
-      return videos
+      const result = videos
         .sort((a, b) => a.display_order - b.display_order)
         .map((video) => ({
           ...video,
           category_name: categories.find(c => c.id === video.category_id)?.name || 'Uncategorized',
         })) as (Video & { category_name: string })[]
+        
+      return Promise.resolve(result)
     },
   })
 }
@@ -29,10 +31,12 @@ export function useFeaturedVideos() {
         .filter(video => video.is_featured)
         .slice(0, 6)
         
-      return featuredVideos.map((video) => ({
+      const result = featuredVideos.map((video) => ({
         ...video,
         category_name: categories.find(c => c.id === video.category_id)?.name || 'Uncategorized',
       })) as (Video & { category_name: string })[]
+      
+      return Promise.resolve(result)
     },
   })
 }
@@ -50,12 +54,14 @@ export function useHomeFeaturedVideos(section?: string) {
         filteredVideos = filteredVideos.filter(video => video.home_display_section === section)
       }
 
-      return filteredVideos
+      const result = filteredVideos
         .sort((a, b) => a.display_order - b.display_order)
         .map((video) => ({
           ...video,
           category_name: categories.find(c => c.id === video.category_id)?.name || 'Uncategorized',
         })) as (Video & { category_name: string })[]
+        
+      return Promise.resolve(result)
     },
   })
 }

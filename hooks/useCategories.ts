@@ -8,10 +8,12 @@ export function useCategories() {
       const categories = localDB.categories.getAll()
       const photos = localDB.photos.getAll()
       
-      return Promise.resolve(categories.map((category) => ({
+      const result = categories.map((category) => ({
         ...category,
         photo_count: photos.filter(p => p.category_id === category.id).length,
-      })) as (Category & { photo_count: number })[])
+      })) as (Category & { photo_count: number })[]
+      
+      return Promise.resolve(result)
     },
   })
 }
