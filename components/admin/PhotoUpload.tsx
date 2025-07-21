@@ -69,6 +69,38 @@ export function PhotoUpload() {
     })
   }
 
+  // Upload to ImgBB for production (free image hosting)
+  const uploadToImgBB = async (file: File): Promise<string> => {
+    const formData = new FormData()
+    formData.append('image', file)
+    
+    // Get API key from environment variable
+    const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY
+    
+    if (!apiKey || apiKey === 'your_imgbb_api_key_here') {
+      console.warn('ImgBB API key not configured, using base64 fallback')
+      return await convertToBase64(file)
+    }
+    
+    try {
+      const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+        method: 'POST',
+        body: formData
+      })
+      
+      const data = await response.json()
+      if (data.success) {
+        return data.data.url
+      } else {
+        throw new Error('Failed to upload to ImgBB')
+      }
+    } catch (error) {
+      console.error('ImgBB upload error:', error)
+      // Fallback to base64 if ImgBB fails
+      return await convertToBase64(file)
+    }
+  }
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map((file) => {
       // Ensure file is a valid File object before creating object URL
@@ -186,8 +218,21 @@ export function PhotoUpload() {
       let imageUrl: string
       
       if (file.file) {
-        // Convert file to base64 for permanent storage
-        imageUrl = await convertToBase64(file.file)
+        // Check if we're in production (Vercel) - use cloud hosting
+        if (process.env.NODE_ENV === 'production') {
+          try {
+            // Try to upload to ImgBB for persistent storage on Vercel
+            imageUrl = await uploadToImgBB(file.file)
+            console.log('Successfully uploaded to ImgBB:', imageUrl)
+          } catch (error) {
+            console.warn('ImgBB upload failed, using base64 fallback:', error)
+            // Fallback to base64 if cloud upload fails
+            imageUrl = await convertToBase64(file.file)
+          }
+        } else {
+          // Development mode - use base64 (works with localStorage)
+          imageUrl = await convertToBase64(file.file)
+        }
         setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, progress: 50 } : f)))
       } else {
         // Fallback to preview URL (for backward compatibility)
@@ -202,12 +247,12 @@ export function PhotoUpload() {
       await new Promise(resolve => setTimeout(resolve, 200))
       setFiles((prev) => prev.map((f) => (f.id === file.id ? { ...f, progress: 75 } : f)))
 
-      // Create photo record with base64 URL
+      // Create photo record with cloud-hosted or base64 URL
       await createPhoto.mutateAsync({
         category_id: metadata.categoryId,
         title: metadata.title || file.name,
         description: metadata.description,
-        url: imageUrl, // Using base64 data URL for permanent storage
+        url: imageUrl, // Using cloud hosting in production, base64 in development
         alt_text: metadata.altText || metadata.title || file.name,
         display_order: 0,
         is_featured: metadata.isFeatured,
@@ -261,6 +306,11 @@ export function PhotoUpload() {
         <Info className="h-4 w-4" />
         <AlertDescription>
           Upload up to 10 photos per category. Photos will be displayed on the website once uploaded and activated.
+          {process.env.NODE_ENV === 'production' && (
+            <span className="block mt-2 text-sm font-medium text-blue-600">
+              🌐 Production Mode: Images are uploaded to cloud hosting for permanent storage on Vercel.
+            </span>
+          )}
         </AlertDescription>
       </Alert>
 
