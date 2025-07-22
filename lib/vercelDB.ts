@@ -12,11 +12,14 @@ import {
   type ContactInfo
 } from './staticData'
 
-// In-memory storage (will reset on each deployment but works for serverless functions)
+// Check if we should include default content (can be controlled via environment variable)
+const INCLUDE_DEFAULT_CONTENT = process.env.NEXT_PUBLIC_INCLUDE_DEFAULT_CONTENT !== 'false'
+
+// In-memory storage - only include defaults if enabled
 let memoryDB = {
-  categories: [...STATIC_CATEGORIES],
-  photos: [...STATIC_PHOTOS],
-  videos: [...STATIC_VIDEOS],
+  categories: INCLUDE_DEFAULT_CONTENT ? [...STATIC_CATEGORIES] : [],
+  photos: INCLUDE_DEFAULT_CONTENT ? [...STATIC_PHOTOS] : [],
+  videos: INCLUDE_DEFAULT_CONTENT ? [...STATIC_VIDEOS] : [],
   contact: { ...STATIC_CONTACT }
 }
 
@@ -169,6 +172,20 @@ export const vercelDB = {
     verifyPassword: (password: string): boolean => {
       const adminPassword = process.env.ADMIN_PASSWORD || 'admin123'
       return password === adminPassword
+    },
+    
+    clearDefaultContent: (): { deletedPhotos: number, deletedVideos: number } => {
+      // Remove all static/default content (items with IDs starting with 'static-')
+      const originalPhotoCount = memoryDB.photos.length
+      const originalVideoCount = memoryDB.videos.length
+      
+      memoryDB.photos = memoryDB.photos.filter(photo => !photo.id.startsWith('static-'))
+      memoryDB.videos = memoryDB.videos.filter(video => !video.id.startsWith('static-'))
+      
+      const deletedPhotos = originalPhotoCount - memoryDB.photos.length
+      const deletedVideos = originalVideoCount - memoryDB.videos.length
+      
+      return { deletedPhotos, deletedVideos }
     }
   },
 

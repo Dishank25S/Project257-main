@@ -52,35 +52,33 @@ export function DefaultContentManager() {
     if (!doubleConfirm) return
 
     setIsDeleting(true)
+    setDeletionStep(`Deleting all default content...`)
     
     try {
-      // Delete default photos
-      if (defaultPhotos.length > 0) {
-        setDeletionStep(`Deleting ${defaultPhotos.length} default photos...`)
-        for (const photo of defaultPhotos) {
-          await deletePhoto.mutateAsync(photo.id)
+      const response = await fetch('/api/admin/clear-defaults', {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Bearer admin'
         }
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete default content')
       }
 
-      // Delete default videos
-      if (defaultVideos.length > 0) {
-        setDeletionStep(`Deleting ${defaultVideos.length} default videos...`)
-        for (const video of defaultVideos) {
-          await deleteVideo.mutateAsync(video.id)
-        }
-      }
-
+      const result = await response.json()
+      
       setDeletionStep("Refreshing content...")
       
       // Refresh all queries
       await queryClient.invalidateQueries()
       
-      alert("✅ All default content has been successfully deleted!")
+      alert(`✅ Successfully deleted ${result.deletedPhotos} photos and ${result.deletedVideos} videos!`)
       setDeletionStep("")
       
     } catch (error) {
       console.error("Error deleting default content:", error)
-      alert("❌ Failed to delete some content. Please try again or delete items individually.")
+      alert("❌ Failed to delete default content. Please try again.")
       setDeletionStep("")
     } finally {
       setIsDeleting(false)
@@ -102,16 +100,27 @@ export function DefaultContentManager() {
     setDeletionStep(`Deleting ${defaultPhotos.length} default photos...`)
     
     try {
-      for (const photo of defaultPhotos) {
-        await deletePhoto.mutateAsync(photo.id)
+      const response = await fetch('/api/admin/clear-defaults', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer admin'
+        },
+        body: JSON.stringify({ type: 'photos' })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete default photos')
       }
+
+      const result = await response.json()
       
       await queryClient.invalidateQueries({ queryKey: ["photos"] })
-      alert("✅ All default photos have been deleted!")
+      alert(`✅ Successfully deleted ${result.deletedCount} default photos!`)
       setDeletionStep("")
     } catch (error) {
       console.error("Error deleting default photos:", error)
-      alert("❌ Failed to delete some photos. Please try again.")
+      alert("❌ Failed to delete default photos. Please try again.")
       setDeletionStep("")
     } finally {
       setIsDeleting(false)
@@ -133,16 +142,27 @@ export function DefaultContentManager() {
     setDeletionStep(`Deleting ${defaultVideos.length} default videos...`)
     
     try {
-      for (const video of defaultVideos) {
-        await deleteVideo.mutateAsync(video.id)
+      const response = await fetch('/api/admin/clear-defaults', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer admin'
+        },
+        body: JSON.stringify({ type: 'videos' })
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete default videos')
       }
+
+      const result = await response.json()
       
       await queryClient.invalidateQueries({ queryKey: ["videos"] })
-      alert("✅ All default videos have been deleted!")
+      alert(`✅ Successfully deleted ${result.deletedCount} default videos!`)
       setDeletionStep("")
     } catch (error) {
       console.error("Error deleting default videos:", error)
-      alert("❌ Failed to delete some videos. Please try again.")
+      alert("❌ Failed to delete default videos. Please try again.")
       setDeletionStep("")
     } finally {
       setIsDeleting(false)
