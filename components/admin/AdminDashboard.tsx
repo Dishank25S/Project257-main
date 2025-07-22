@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Camera, FolderOpen, Upload, BarChart3, LogOut, Plus, Eye, Star, Play, Youtube, Home, Settings, Users, Palette, RotateCcw } from "lucide-react"
+import { Camera, FolderOpen, Upload, BarChart3, LogOut, Plus, Eye, Star, Play, Youtube, Home, Settings, Users, Palette, RotateCcw, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -15,6 +15,7 @@ import { VideoManager } from "./VideoManager"
 import { SampleDataInitializer } from "./SampleDataInitializer"
 import { ContactManager } from "./ContactManager"
 import { LivePreview } from "./LivePreview"
+import { DefaultContentManager } from "./DefaultContentManager"
 import { useAuth } from "@/hooks/useAuth"
 import { useCategories } from "@/hooks/useCategories"
 import { usePhotos } from "@/hooks/usePhotos"
@@ -82,7 +83,7 @@ export function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-9">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Overview</span>
@@ -110,6 +111,10 @@ export function AdminDashboard() {
             <TabsTrigger value="contact" className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
               <span className="hidden sm:inline">Contact</span>
+            </TabsTrigger>
+            <TabsTrigger value="default-content" className="flex items-center gap-2">
+              <Trash2 className="w-4 h-4" />
+              <span className="hidden sm:inline">Defaults</span>
             </TabsTrigger>
             <TabsTrigger value="preview" className="flex items-center gap-2">
               <Eye className="w-4 h-4" />
@@ -302,6 +307,10 @@ export function AdminDashboard() {
 
           <TabsContent value="contact">
             <ContactManager />
+          </TabsContent>
+
+          <TabsContent value="default-content">
+            <DefaultContentManager />
           </TabsContent>
 
           <TabsContent value="preview">
