@@ -15,6 +15,8 @@ import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useCategories } from "@/hooks/useCategories"
 import { usePhotoMutations } from "@/hooks/usePhotos"
+import { useUploadThing } from "@uploadthing/react"
+import { auth } from "@/lib/auth"
 
 interface UploadFile {
   id: string
@@ -54,6 +56,19 @@ export function PhotoUpload() {
   const { data: categories } = useCategories()
   const { createPhoto } = usePhotoMutations()
 
+  // UploadThing integration
+  const { startUpload, isUploading } = useUploadThing("imageUploader", {
+    onClientUploadComplete: (res) => {
+      console.log("Upload completed:", res);
+    },
+    onUploadError: (error) => {
+      console.error("Upload error:", error);
+    },
+    headers: {
+      Authorization: `Bearer ${auth.getToken()}`
+    }
+  })
+
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
@@ -69,34 +84,24 @@ export function PhotoUpload() {
     })
   }
 
-  // Upload to ImgBB for production (free image hosting)
-  const uploadToImgBB = async (file: File): Promise<string> => {
-    const formData = new FormData()
-    formData.append('image', file)
-    
-    // Get API key from environment variable
-    const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY
-    
-    if (!apiKey || apiKey === 'your_imgbb_api_key_here') {
-      console.warn('ImgBB API key not configured, using base64 fallback')
-      return await convertToBase64(file)
-    }
-    
+  // Upload using UploadThing for production (secure image hosting)
+  const uploadToUploadThing = async (file: File): Promise<string> => {
     try {
-      const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
-        method: 'POST',
-        body: formData
-      })
+      console.log('Uploading to UploadThing:', file.name, 'Size:', (file.size / 1024 / 1024).toFixed(2) + 'MB')
       
-      const data = await response.json()
-      if (data.success) {
-        return data.data.url
-      } else {
-        throw new Error('Failed to upload to ImgBB')
+      // Use UploadThing if we have proper credentials configured
+      if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID && process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID !== 'your_uploadthing_app_id_here') {
+        const uploadResult = await startUpload([file])
+        if (uploadResult && uploadResult[0]) {
+          return uploadResult[0].url
+        }
       }
+      
+      // Fallback to base64 for development or when UploadThing not configured
+      return await convertToBase64(file)
     } catch (error) {
-      console.error('ImgBB upload error:', error)
-      // Fallback to base64 if ImgBB fails
+      console.error('Upload error:', error)
+      // Fallback to base64 if upload fails
       return await convertToBase64(file)
     }
   }
@@ -221,11 +226,11 @@ export function PhotoUpload() {
         // Check if we're in production (Vercel) - use cloud hosting
         if (process.env.NODE_ENV === 'production') {
           try {
-            // Try to upload to ImgBB for persistent storage on Vercel
-            imageUrl = await uploadToImgBB(file.file)
-            console.log('Successfully uploaded to ImgBB:', imageUrl)
+            // Try to upload to UploadThing for persistent storage on Vercel
+            imageUrl = await uploadToUploadThing(file.file)
+            console.log('Successfully uploaded to UploadThing:', imageUrl)
           } catch (error) {
-            console.warn('ImgBB upload failed, using base64 fallback:', error)
+            console.warn('UploadThing upload failed, using base64 fallback:', error)
             // Fallback to base64 if cloud upload fails
             imageUrl = await convertToBase64(file.file)
           }

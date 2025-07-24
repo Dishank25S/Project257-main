@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { localDB } from "@/lib/supabase"
+import { auth } from "@/lib/auth"
 
 export function useAuth() {
   const [user, setUser] = useState<{ email: string } | null>(null)
@@ -23,6 +24,7 @@ export function useAuth() {
       const isValid = localDB.admin.verifyPassword(password)
       if (isValid) {
         localStorage.setItem("admin_logged_in", "true")
+        auth.setToken(password) // Set the auth token for API calls
         setUser({ email: "admin" })
         router.push("/admin/dashboard")
         return Promise.resolve({ user: { email: "admin" } })
@@ -37,17 +39,20 @@ export function useAuth() {
   const logout = {
     mutate: () => {
       localStorage.removeItem("admin_logged_in")
+      auth.clearToken() // Clear the auth token
       setUser(null)
       router.push("/")
     },
   }
 
   const setPassword = (password: string) => {
-    localDB.admin.setPassword(password)
+    // Password management is handled via environment variables
+    console.warn('Password setting not available in this version')
   }
 
   const hasPassword = () => {
-    return localDB.admin.hasPassword()
+    // Always return true as admin password is handled via environment
+    return true
   }
 
   return {

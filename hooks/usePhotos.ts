@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { localDB, type Photo } from "@/lib/supabase"
+import { auth } from "@/lib/auth"
 
 // Check if we should use API routes (in production/Vercel)
 const useAPIRoutes = process.env.NODE_ENV === 'production' || process.env.NEXT_PUBLIC_USE_API === 'true'
@@ -116,10 +117,7 @@ export function usePhotoMutations() {
       if (useAPIRoutes) {
         const response = await fetch('/api/photos', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer admin' // Simple auth token
-          },
+          headers: auth.getHeaders(),
           body: JSON.stringify(photo)
         })
         
@@ -148,10 +146,7 @@ export function usePhotoMutations() {
       if (useAPIRoutes) {
         const response = await fetch('/api/photos', {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer admin' // Simple auth token
-          },
+          headers: auth.getHeaders(),
           body: JSON.stringify({ id, ...updates })
         })
         
@@ -182,7 +177,7 @@ export function usePhotoMutations() {
         const response = await fetch(`/api/photos?id=${encodeURIComponent(id)}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': 'Bearer admin' // Simple auth token
+            'Authorization': `Bearer ${auth.getToken()}`
           }
         })
         

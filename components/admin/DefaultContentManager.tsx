@@ -12,6 +12,7 @@ import { usePhotos, usePhotoMutations } from "@/hooks/usePhotos"
 import { useVideos, useVideoMutations } from "@/hooks/useVideos"
 import { useCategories } from "@/hooks/useCategories"
 import { useQueryClient } from "@tanstack/react-query"
+import { auth } from "@/lib/auth"
 
 export function DefaultContentManager() {
   const [isDeleting, setIsDeleting] = useState(false)
@@ -58,7 +59,7 @@ export function DefaultContentManager() {
       const response = await fetch('/api/admin/clear-defaults', {
         method: 'DELETE',
         headers: {
-          'Authorization': 'Bearer admin'
+          'Authorization': `Bearer ${auth.getToken()}`
         }
       })
 
@@ -102,10 +103,7 @@ export function DefaultContentManager() {
     try {
       const response = await fetch('/api/admin/clear-defaults', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer admin'
-        },
+        headers: auth.getHeaders(),
         body: JSON.stringify({ type: 'photos' })
       })
 
@@ -144,10 +142,7 @@ export function DefaultContentManager() {
     try {
       const response = await fetch('/api/admin/clear-defaults', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer admin'
-        },
+        headers: auth.getHeaders(),
         body: JSON.stringify({ type: 'videos' })
       })
 

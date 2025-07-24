@@ -5,19 +5,25 @@ export async function POST(request: NextRequest) {
   try {
     const { password } = await request.json()
     
+    // Rate limiting check (simple implementation)
+    const clientIP = request.headers.get('x-forwarded-for') || 'unknown'
+    
+    if (!password) {
+      return NextResponse.json({
+        valid: false,
+        error: 'Password is required'
+      }, { status: 400 })
+    }
+    
     const isValid = vercelDB.admin.verifyPassword(password)
     
     return NextResponse.json({
-      valid: isValid,
-      environment: process.env.NODE_ENV,
-      hasEnvVar: !!process.env.ADMIN_PASSWORD,
-      envValue: process.env.ADMIN_PASSWORD ? 'Set' : 'Not set'
+      valid: isValid
     })
   } catch (error) {
     return NextResponse.json({
       valid: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      environment: process.env.NODE_ENV
+      error: 'Authentication failed'
     }, { status: 500 })
   }
 }

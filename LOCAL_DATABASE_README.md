@@ -1,6 +1,6 @@
 # Local Database Photography Portfolio
 
-This photography portfolio application now uses **localStorage** for data persistence instead of external database services like Supabase. All your data is stored locally in your browser.
+This photography portfolio application now uses **localStorage** for data persistence instead of external database services. All your data is stored locally in your browser.
 
 ## 🚀 Quick Start
 
@@ -83,7 +83,7 @@ All data is stored locally in your browser's localStorage:
 
 ## 🔄 Migration from External Database
 
-If you were previously using Supabase or another database:
+If you were previously using external databases:
 
 1. **Export your existing data** from your previous database
 2. **Format the data** to match the TypeScript interfaces in `lib/localDB.ts`

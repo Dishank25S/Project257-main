@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { localDB, type Category } from "@/lib/supabase"
+import { auth } from "@/lib/auth"
 
 // Check if we should use API routes (in production/Vercel)
 const useAPIRoutes = process.env.NODE_ENV === 'production' || process.env.NEXT_PUBLIC_USE_API === 'true'
@@ -47,10 +48,7 @@ export function useCategoryMutations() {
     mutationFn: async (category: Omit<Category, "id" | "created_at" | "updated_at">) => {
       const response = await fetch('/api/categories', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer admin' // Simple auth token
-        },
+        headers: auth.getHeaders(),
         body: JSON.stringify(category)
       })
       
@@ -69,10 +67,7 @@ export function useCategoryMutations() {
     mutationFn: async ({ id, ...updates }: Partial<Category> & { id: string }) => {
       const response = await fetch('/api/categories', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer admin' // Simple auth token
-        },
+        headers: auth.getHeaders(),
         body: JSON.stringify({ id, ...updates })
       })
       
@@ -92,7 +87,7 @@ export function useCategoryMutations() {
       const response = await fetch(`/api/categories?id=${encodeURIComponent(id)}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': 'Bearer admin' // Simple auth token
+          'Authorization': `Bearer ${auth.getToken()}`
         }
       })
       

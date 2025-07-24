@@ -105,7 +105,8 @@ headers: {
 ```bash
 # In Vercel Dashboard → Environment Variables
 ADMIN_PASSWORD=admin123
-NEXT_PUBLIC_IMGBB_API_KEY=3a38d63d4897eed29d6bb64ee16ac944
+UPLOADTHING_SECRET=sk_live_your_secret_key_here
+NEXT_PUBLIC_UPLOADTHING_APP_ID=your_app_id_here
 ```
 
 ---
@@ -117,7 +118,7 @@ NEXT_PUBLIC_IMGBB_API_KEY=3a38d63d4897eed29d6bb64ee16ac944
 - Hooks updated with hybrid approach
 - Error handling implemented
 - Authentication system in place
-- Image hosting configured (ImgBB)
+- Image hosting configured (UploadThing)
 - 2MB file size limit implemented
 
 ### **✅ Vercel Compatibility:**
@@ -151,7 +152,8 @@ NEXT_PUBLIC_IMGBB_API_KEY=3a38d63d4897eed29d6bb64ee16ac944
 2. **Set Environment Variables:**
    ```
    ADMIN_PASSWORD=admin123
-   NEXT_PUBLIC_IMGBB_API_KEY=3a38d63d4897eed29d6bb64ee16ac944
+   UPLOADTHING_SECRET=sk_live_your_secret_key_here
+   NEXT_PUBLIC_UPLOADTHING_APP_ID=your_app_id_here
    ```
 3. **Test Admin Functions:**
    - Login at `/admin/login`

@@ -11,7 +11,7 @@ Your Sharp Cinematic photography website is fully configured and ready for produ
 ### ✅ **Core Features Implemented**
 - [x] **Photography Portfolio** - Beautiful gallery with categories
 - [x] **Admin Dashboard** - Complete content management system
-- [x] **Image Upload System** - Cloud hosting with ImgBB integration (2MB limit)
+- [x] **Image Upload System** - UploadThing integration for secure cloud hosting
 - [x] **Responsive Design** - Mobile-first, professional layout
 - [x] **Static Data System** - No external database dependencies
 - [x] **Admin Authentication** - Secure login with password: `admin123`
@@ -25,7 +25,7 @@ Your Sharp Cinematic photography website is fully configured and ready for produ
 - [x] **Environment Variables** - Properly configured with real API key
 
 ### ✅ **Image Hosting Setup**
-- [x] **ImgBB Integration** - Cloud storage for persistent images
+- [x] **UploadThing Integration** - Secure cloud storage for persistent images
 - [x] **API Key Configured** - Real key: `3a38d63d4897eed29d6bb64ee16ac944`
 - [x] **Fallback System** - Base64 backup if cloud upload fails
 - [x] **File Size Validation** - 2MB limit prevents quota overflow
@@ -39,7 +39,8 @@ Your Sharp Cinematic photography website is fully configured and ready for produ
 1. **Set Environment Variables in Vercel Dashboard:**
    ```
    ADMIN_PASSWORD=admin123
-   NEXT_PUBLIC_IMGBB_API_KEY=3a38d63d4897eed29d6bb64ee16ac944
+   UPLOADTHING_SECRET=sk_live_your_secret_key_here
+   NEXT_PUBLIC_UPLOADTHING_APP_ID=your_app_id_here
    ```
 
 2. **Deploy Settings:**
