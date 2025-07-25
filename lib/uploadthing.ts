@@ -22,8 +22,7 @@ export const ourFileRouter = {
   imageUploader: f({ 
     image: { 
       maxFileSize: "2MB", 
-      maxFileCount: 10,
-      allowedFileTypes: ["image/jpeg", "image/jpg", "image/png", "image/webp"]
+      maxFileCount: 10
     }
   })
     .middleware(async ({ req }) => {

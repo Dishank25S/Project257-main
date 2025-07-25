@@ -28,7 +28,7 @@ export function PhotoManager() {
   const { data: categories } = useCategories()
   const { updatePhoto, deletePhoto } = usePhotoMutations()
 
-  const filteredPhotos = photos?.filter((photo) => {
+  const filteredPhotos = photos?.filter((photo: any) => {
     const matchesSearch =
       photo.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       photo.description?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -116,7 +116,7 @@ export function PhotoManager() {
       {/* Photos Grid */}
       {filteredPhotos && filteredPhotos.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredPhotos.map((photo, index) => (
+          {filteredPhotos.map((photo: any, index: number) => (
             <motion.div
               key={photo.id}
               initial={{ opacity: 0, y: 20 }}

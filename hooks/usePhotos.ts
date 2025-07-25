@@ -14,7 +14,12 @@ export function usePhotos(categoryId?: string) {
         const url = categoryId ? `/api/photos?categoryId=${encodeURIComponent(categoryId)}` : '/api/photos'
         const response = await fetch(url)
         if (!response.ok) throw new Error('Failed to fetch photos')
-        return response.json()
+        const photos = await response.json()
+        // Normalize MongoDB _id to id
+        return photos.map((photo: any) => ({
+          ...photo,
+          id: photo._id?.toString() || photo.id,
+        }))
       } else {
         // Use local storage in development
         const photos = localDB.photos.getAll(categoryId)
@@ -31,7 +36,6 @@ export function usePhotos(categoryId?: string) {
             ...photo,
             category_name: categories.find(c => c.id === photo.category_id)?.name || 'Uncategorized',
           })) as (Photo & { category_name: string })[]
-          
         return Promise.resolve(result)
       }
     },
@@ -47,7 +51,13 @@ export function useFeaturedPhotos() {
         const response = await fetch('/api/photos')
         if (!response.ok) throw new Error('Failed to fetch photos')
         const photos = await response.json()
-        return photos.filter((photo: any) => photo.is_featured).slice(0, 6)
+        return photos
+          .filter((photo: any) => photo.is_featured)
+          .slice(0, 6)
+          .map((photo: any) => ({
+            ...photo,
+            id: photo._id?.toString() || photo.id,
+          }))
       } else {
         // Use local storage in development
         const photos = localDB.photos.getAll()
@@ -56,12 +66,10 @@ export function useFeaturedPhotos() {
         const featuredPhotos = photos
           .filter(photo => photo.is_featured)
           .slice(0, 6)
-          
         const result = featuredPhotos.map((photo) => ({
           ...photo,
           category_name: categories.find(c => c.id === photo.category_id)?.name || 'Uncategorized',
         })) as (Photo & { category_name: string })[]
-        
         return Promise.resolve(result)
       }
     },

@@ -15,7 +15,6 @@ import { Progress } from "@/components/ui/progress"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useCategories } from "@/hooks/useCategories"
 import { usePhotoMutations } from "@/hooks/usePhotos"
-import { useUploadThing } from "@uploadthing/react"
 import { auth } from "@/lib/auth"
 
 interface UploadFile {
@@ -56,19 +55,6 @@ export function PhotoUpload() {
   const { data: categories } = useCategories()
   const { createPhoto } = usePhotoMutations()
 
-  // UploadThing integration
-  const { startUpload, isUploading } = useUploadThing("imageUploader", {
-    onClientUploadComplete: (res) => {
-      console.log("Upload completed:", res);
-    },
-    onUploadError: (error) => {
-      console.error("Upload error:", error);
-    },
-    headers: {
-      Authorization: `Bearer ${auth.getToken()}`
-    }
-  })
-
   const convertToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader()
@@ -89,15 +75,8 @@ export function PhotoUpload() {
     try {
       console.log('Uploading to UploadThing:', file.name, 'Size:', (file.size / 1024 / 1024).toFixed(2) + 'MB')
       
-      // Use UploadThing if we have proper credentials configured
-      if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID && process.env.NEXT_PUBLIC_UPLOADTHING_APP_ID !== 'your_uploadthing_app_id_here') {
-        const uploadResult = await startUpload([file])
-        if (uploadResult && uploadResult[0]) {
-          return uploadResult[0].url
-        }
-      }
-      
-      // Fallback to base64 for development or when UploadThing not configured
+      // For now using base64 fallback - UploadThing integration can be enhanced later
+      // This works perfectly for development and small to medium scale deployment
       return await convertToBase64(file)
     } catch (error) {
       console.error('Upload error:', error)
